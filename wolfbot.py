@@ -36,7 +36,7 @@ import irclib
 from irclib import nm_to_n, nm_to_h, irc_lower, parse_channel_modes
 from botcommon import OutputManager
 
-url = "http://liag.se/kod/python/wolfbot.py"
+url = "https://github.com/Liag/wolfbot"
 
 # Game config
 GAME_STARTER_TIMEOUT_MINS = 4
@@ -132,7 +132,7 @@ IRC_BOLD = "\x02"
 
 class WolfBot(SingleServerIRCBot):
   GAMESTATE_NONE, GAMESTATE_STARTING, GAMESTATE_RUNNING  = range(3)
-  def __init__(self, channel, nickname, nickpass, server, port=defaultPort,
+  def __init__(self, channel, nickname, nickpass, server, port=6667,
       debug=False):
     SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
     self.channel = channel
@@ -190,7 +190,9 @@ class WolfBot(SingleServerIRCBot):
   
   def process_timers(self):
     #Process all existing timers and check if their functions need to executed
-    
+    game_start_timer = 1
+    if game_start_timer is not None:
+      game_start_timer = time.time()
   
   def process_forever(self):
     """Run an infinite loop, processing data from connections.
@@ -203,7 +205,7 @@ class WolfBot(SingleServerIRCBot):
     """
     while 1:
         self.ircobj.process_once(0.2)
-        self.ircobj.process_timers()
+        self.process_timers()
     
   def start(self):
     """Start the bot."""
@@ -364,7 +366,6 @@ class WolfBot(SingleServerIRCBot):
           self.queue.send('identify %s' % self.nickpass, 'nickserv')
 
   def on_privmsg(self, c, e):
-    self.check_game_control(e)
     self.do_command(e, e.arguments()[0])
 
 
@@ -375,7 +376,6 @@ class WolfBot(SingleServerIRCBot):
     self._removeUser(nm_to_n(e.arguments()[0]))
 
   def on_pubmsg(self, c, e):
-    self.check_game_control(e)
     s = e.arguments()[0]
     a = string.split(s, ":", 1)
     if len(a) > 1 and irc_lower(a[0]) == irc_lower(c.get_nickname()):
@@ -460,7 +460,6 @@ class WolfBot(SingleServerIRCBot):
             "that person must finish starting it." % self.game_starter)
         return
       self.game_starter = game_starter
-      self.game_starter_last_seen = time.time()
 
       if len(self.live_players) < MIN_USERS:
         self.say_public("Sorry, to start a game, there must be " + \
@@ -873,7 +872,16 @@ class WolfBot(SingleServerIRCBot):
           if lovers:
             self.reply(e, "You're out of arrows for this game.")
           else:
-            self.reply
+            lovers[0] = who1
+            lovers[1] = who2
+            
+            self.reply(e, "Your arrows strike! %s and %s are now lovers." % who1, who2)
+            
+            self.reply(who1, "Cupid's arrow has struck you! Your lover is %s." % who2)
+            self.reply(who2, "Cupid's arrow has struck you! Your lover is %s." % who1)
+            
+            if self.check_night_done():
+              self.day()
               
   def kill(self, e, who):
     "Allow a werewolf to express intent to 'kill' somebody."
@@ -931,7 +939,7 @@ class WolfBot(SingleServerIRCBot):
       id = "the \x034seer\x0f\x02!"
     else:
       id = "a normal villager."
-
+    
     self.say_public(\
         ("*** Examining the body, you notice that this player was %s" % id))
     if self.check_game_over():
@@ -940,6 +948,14 @@ class WolfBot(SingleServerIRCBot):
       self.say_public(("(%s is now dead, and should stay quiet.)") % player)
       self.say_private(player, "You are now \x034dead\x0f\x02.  You may observe the game,")
       self.say_private(player, "but please stay quiet until the game is over.")
+      
+      if lovers and (lovers[0] in live_players or lovers[1] in live_players):
+        if player is lovers[0]:
+          self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % lovers[0], lovers[1])
+          return kill_player(lovers[1])
+        elif player is lovers[1]:
+          self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % lovers[1], lovers[0])
+          return kill_player(lovers[0])
       return 0
 
 
@@ -1262,7 +1278,7 @@ def main():
   c.read(configfile)
   cfgsect = 'wolfbot'
   host = c.get(cfgsect, 'host')
-  defaultPort = c.get(cfgsect, 'port')
+  defaultPort = int(c.get(cfgsect, 'port'))
   channel = c.get(cfgsect, 'channel')
   nickname = c.get(cfgsect, 'nickname')
   nickpass = c.get(cfgsect, 'nickpass')
