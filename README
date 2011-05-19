@@ -2,4 +2,4 @@ A werewolf IRC bot written in Python using the python-irclib library. Modified f
 
 python-irclib by Joel Rosdahl <joel@rosdahl.net>
 original bot from ircbot-collection (see http://ircbot-collection.googlecode.com/svn/trunk/AUTHORS for a list of authors)
-New roles added, real timers implemented and a lot of other stuff added by Victor Rådmark <victor@liag.se>
+New roles added, real timers implemented and a lot of other stuff added by Victor RÃ¥dmark <victor@liag.se>
