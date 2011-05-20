@@ -109,8 +109,8 @@ villager_intro_text = \
 
 night_game_texts = \
 ["Darkness falls:  it is \x034night\x0f\x02.",
- "The whole village sleeps peacefully...",
- "Everyone relax and wait for morning... I'll tell you when night is over."]
+ "The village enters a restless slumber, each inhabitant fearing that they are next...",
+ "Who knows what horrors the dark will bring?"]
 
 # Printed when wolves and villager get nighttime instructions:
 
@@ -129,7 +129,7 @@ night_mystic_texts = \
  to protect this person."]
 
 night_angel_texts = \
-["You don't really need to do shit."]
+["You are immune to the wolves' attacks! You can rest easy tonight. Just beware of being lynched tomorrow..."]
  
 night_ninja_texts = \
 ["As the others are asleep, you have a single chance to sneak in and assassinate someone.",
@@ -146,7 +146,7 @@ night_cupid_texts = \
   powers will still be forfeit for the rest of the game."]
 
 night_watchman_texts = \
-["As the watchman, you will get informed of any unusual happenings in the morning."]
+["As the watchman, you keep a firm vigil on the villagers. If a failed attack takes place in the night, you are sure to see the signs."]
 
 night_werewolf_texts = \
 ["As the villagers sleep, you must now decide whom you want to kill.",
@@ -162,9 +162,9 @@ morning_game_texts = \
   
 day_game_texts = \
 ["The villagers are all gathered to vote.",
- "The villagers *must* decide to lynch one player.",
+"The villagers may now decide to lynch one player. If you do not vote two nights in a row, the powers of good will cast you down!",
  "When each player is ready, send me the command:  'vote <nickname>',",
- "and I will keep track of votes, until the majority agrees.",
+ "and I will lynch the player who gets the most votes!",
  "Remember:  votes cannot be changed after you have voted."]
  
 day_elder_texts = \
