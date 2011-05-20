@@ -161,13 +161,15 @@ morning_game_texts = \
  "The villagers will gather to vote upon this matter in a short while."]
   
 day_game_texts = \
-["The villagers *must* decide to lynch one player.",
+["The villagers are all gathered to vote.",
+ "The villagers *must* decide to lynch one player.",
  "When each player is ready, send me the command:  'vote <nickname>',",
- "and I will keep track of votes, until the majority agrees."]
+ "and I will keep track of votes, until the majority agrees.",
+ "Remember:  votes cannot be changed after you have voted."]
  
 day_elder_texts = \
 ["As the village elder, you have a secret vote at your disposal each voting session.",
- "Please type 'secrevote <nickname>' (as a private message to me) to use this extra vote."]
+ "Please type 'secretvote <nickname>' (as a private message to me) to use this extra vote."]
 
 
 
@@ -242,42 +244,57 @@ class WolfBot(SingleServerIRCBot):
   def process_timers(self):
     #Process all existing timers and check if their functions need to executed
     
+    curTime = time.time()
+    
     if self.gamestate == self.GAMESTATE_STARTING:
-      if self.game_start_timer != -1:
-        self.game_start_timer += 1
-        if self.game_start_timer == GAME_STARTER_TIMEOUT:
-          self.say_public("The required startup time has now passed.")
-          self.say_public("Anyone can now start the game with !start")
-        #self.say_public("timer: %d" % self.game_start_timer)
-        if (self.game_start_timer % 10) == 0:
-          self.say_public("Players who have currently joined:")
-          i = 1
-          for player in self.live_players:
-            self.say_public("*** %s" % player)
-            i += 1
+      elapsed = int(curTime - self.game_start_timer)
+      if self.old_elapsed != elapsed:
+        if self.game_start_timer != -1:
+          if elapsed == GAME_STARTER_TIMEOUT:
+            self.say_public("The required startup time has now passed.")
+            self.say_public("Anyone can now start the game with !start")
+            
+          #print "elapsed: " + str(elapsed) + ", elapsed mod 10: " + str(elapsed % 10)
+          if elapsed % 10 == 0:
+            self.say_public("Players who have currently joined:")
+            i = 1
+            for player in self.live_players:
+              self.say_public("*** %s" % player)
+              i += 1
+      self.old_elapsed = elapsed
+                  
     if self.gamestate == self.GAMESTATE_RUNNING:
       if self.time == "night":
-        self.night_timer += 1
-        if self.check_night_done():
-          self.day()
-      if self.time == "day":
-        self.day_timer += 1
-        if self.check_day_done():
-          victims = self.check_for_votes()
-          if not victims:
-            self.print_tally()
-            self.night()
-            return
-          elif len(victims) == 1:
-            victim = victims[0]
-          else:
-            victim = victims[random.randrange(len(victims))]
+        elapsed = int(curTime - self.night_timer)
+        if self.old_elapsed != elapsed:
+          if self.check_night_done():
+            self.day()
+        self.old_elapsed = elapsed
+      elif self.time == "day":
+        elapsed = int(curTime - self.day_timer)
+        if self.old_elapsed != elapsed:
+          if self.check_day_done(elapsed):
+            victims = self.check_for_votes()
+            if not victims:
+              self.print_tally()
+              self.night()
+              return
+            elif len(victims) == 1:
+              victim = victims[0]
+            else:
+              victim = victims[random.randrange(len(victims))]
         
-          self.say_public(("The majority has voted to lynch %s!! "
+            self.say_public(("The majority has voted to lynch %s!! "
                              "Mob violence ensues.  This player is now \x034dead\x0f\x02." % victim))
-          if not self.kill_player(victim):
-          # Day is done;  flip bot back into night-mode.
-            self.night()
+            if not self.kill_player(victim):
+            # Day is done;  flip bot back into night-mode.
+              self.night()
+          elif elapsed == DAY_LENGTH / 2:
+            for text in day_game_texts:
+              self.say_public(text)
+          self.old_elapsed = elapsed
+            
+      
                           
           
   def process_forever(self):
@@ -290,8 +307,8 @@ class WolfBot(SingleServerIRCBot):
         timeout -- Parameter to pass to process_once.
     """
     while 1:
-        self.ircobj.process_once(0.2)
         self.process_timers()
+        self.ircobj.process_once(0.2)
     
   def start(self):
     """Start the bot."""
@@ -360,7 +377,7 @@ class WolfBot(SingleServerIRCBot):
                          "you may assassinate someone else this night." % nick)
       if self.cupid is not None and nick == self.cupid:
         self.say_public("%s was a cupid. The subjects of his work surely won't mourn him." % nick)
-      if lovers and nick == lovers[0] or nick == lovers[1]:
+      if self.lovers and nick == self.lovers[0] or nick == self.lovers[1]:
         self.check_lovers(nick)
       if self.village_elder is not None and nick == self.village_elder:
         self.say_public("%s was the village elder. The villagers are sorry for his lots." % nick)
@@ -419,7 +436,7 @@ class WolfBot(SingleServerIRCBot):
     self.queue.send('identify %s' % self.nickpass, 'nickserv')
 
 
-  def fix_modes(self):
+  def fix_modes(self, night = False):
     chobj = self.channels[self.channel]
     is_moderated = chobj.is_moderated()
     should_be_moderated = (self.gamestate == self.GAMESTATE_RUNNING
@@ -434,11 +451,16 @@ class WolfBot(SingleServerIRCBot):
     for user in chobj.users():
       is_live = user in self.live_players
       is_voiced = chobj.is_voiced(user)
-      if is_live and not is_voiced:
-        voice.append(user)
-      elif not is_live and is_voiced:
-        devoice.append(user)
-    self.multimode('+v', voice)
+      if night:
+        if is_live:
+          devoice.append(user)
+      else:
+        if is_live and not is_voiced:
+          voice.append(user)
+        elif not is_live and is_voiced:
+          devoice.append(user)
+    if not night: 
+      self.multimode('+v', voice)
     self.multimode('-v', devoice)
 
 
@@ -484,6 +506,7 @@ class WolfBot(SingleServerIRCBot):
       self.do_command(e, string.strip(s[1:]))
 
   def _reset_gamedata(self):
+    self.old_elapsed = 0
     self.game_start_timer = -1
     self.night_timer = -1
     self.day_timer = -1
@@ -554,11 +577,11 @@ class WolfBot(SingleServerIRCBot):
       self.say_public("%s: Say '%s: start' when everyone has joined."
           % (self.game_starter, self.connection.get_nickname()))
       self.fix_modes()
-      self.game_start_timer = 0
+      self.game_start_timer = time.time()
       return
 
     if self.gamestate == self.GAMESTATE_STARTING:
-      if (self.game_start_timer < GAME_STARTER_TIMEOUT) and self.game_starter and game_starter != self.game_starter:
+      if ((time.time() - self.game_start_timer) < GAME_STARTER_TIMEOUT) and self.game_starter and game_starter != self.game_starter:
         self.say_public("Game startup was begun by %s; "
             "that person must finish starting it." % self.game_starter)
         return
@@ -590,6 +613,8 @@ class WolfBot(SingleServerIRCBot):
           roles = 6
         else:
           roles = 7
+        
+        print "roles:" + str(roles)
           
         self.wolves.append(users.pop(random.randrange(len(users))))
 		
@@ -607,7 +632,7 @@ class WolfBot(SingleServerIRCBot):
         self.originalwolves = self.wolves[:]
         
         #Generate roles
-        for i in roles:
+        for i in range(roles):
           role = 0
           while role == 0:
             role = random.randint(1, 100)
@@ -749,10 +774,10 @@ class WolfBot(SingleServerIRCBot):
     return 0
 
 
-  def check_night_done(self):
+  def check_night_done(self, elapsed = 0):
     "Check if nighttime is over.  Return 1 if night is done, 0 otherwise."
     
-    if self.night_timer > NIGHT_LENGTH:
+    if (elapsed > NIGHT_LENGTH) or (int(time.time() - self.night_timer) > NIGHT_LENGTH):
       return 1
     # Is the seer done seeing?
     if self.seer is None or self.seer not in self.live_players:
@@ -778,10 +803,10 @@ class WolfBot(SingleServerIRCBot):
     else:
       return 0
   
-  def check_day_done(self):
+  def check_day_done(self, elapsed):
     "Check if daytime is over. Return 1 if day is done, 0 otherwise."
     
-    if self.day_timer > DAY_LENGTH:
+    if elapsed > DAY_LENGTH:
       return 1
 
   def night(self):
@@ -790,7 +815,7 @@ class WolfBot(SingleServerIRCBot):
     chname, chobj = self.channels.items()[0]
 
     self.time = "night"
-    self.night_timer = 0
+    self.night_timer = time.time()
 
     # Clear any daytime variables
     self.villager_votes = {}
@@ -840,7 +865,8 @@ class WolfBot(SingleServerIRCBot):
       self.say_private(self.wolves[1],\
                        ("The other werewolf is %s.  Confer privately."\
                         % self.wolves[0]))
-
+    
+    self.fix_modes(True)
     # ... bot is now in 'night' mode;  goes back to doing nothing but
     # waiting for commands.
 
@@ -851,12 +877,32 @@ class WolfBot(SingleServerIRCBot):
     if self.first_night is True:
       self.first_night = False
     
-    self.day_timer = 0
+    self.day_timer = time.time()
     self.time = "day"
     
     # Discover dead bodies if someone has been killed during the night, depending on the actions of 
-    self.say_public("\x034Day\x0f\x02 Breaks!  Sunlight pierces the sky.")
+    self.say_public("\x034Day\x0f\x02 breaks!  Sunlight pierces the sky.")
     
+    if self.seer_target is not None:
+      role = ""
+      if self.seer_target == self.mystic:
+        role = "the mystic."
+      elif self.seer_target == self.angel:
+        role = "the angel."
+      elif self.seer_target == self.ninja:
+        role = "the ninja."
+      elif self.seer_target == self.cupid:
+        role = "the cupid."
+      elif self.seer_target == self.village_elder:
+        role = "the village elder."
+      elif self.seer_target == self.watchman:
+        role = "the watchman."
+      elif self.seer_target in self.wolves:
+        role = "a werewolf!"
+      else:
+        role = "a villager."
+      self.say_private(self.seer, "Your dreams told you that %s is %s" % (self.seer_target, role))
+      
     assassinated = False
     if self.ninja_target in self.live_players:
       assassinated = True
@@ -905,12 +951,13 @@ class WolfBot(SingleServerIRCBot):
 
     # Give daytime instructions.
     self.print_alive()
-    for text in day_game_texts:
+    for text in morning_game_texts:
       self.say_public(text)
-    self.say_public("Remember:  votes can be changed at any time.")
     if self.village_elder is not None and self.village_elder in self.live_players:
-      for text in day_game_texts:
+      for text in day_elder_texts:
         say_private(self.village_elder, text)
+    
+    self.fix_modes()
     # ... bot is now in 'day' mode;  goes back to doing nothing but
     # waiting for commands.
 
@@ -937,7 +984,7 @@ class WolfBot(SingleServerIRCBot):
           else:
             self.seer_target = who
             
-            self.reply(e, "You have decided to see if %s really are what they seem to be.")
+            self.reply(e, "You have decided to see if %s really are what they seem to be." % self.seer_target)
             if self.check_night_done():
               self.day()
     
@@ -994,7 +1041,7 @@ class WolfBot(SingleServerIRCBot):
             if self.check_night_done():
               self.day()
               
-  def lovers(self, e, who1, who2):
+  def lover(self, e, who1, who2):
     "Allow a cupid to lover two players once per game."
     
     if self.gamestate != self.GAMESTATE_RUNNING:
@@ -1103,7 +1150,7 @@ class WolfBot(SingleServerIRCBot):
       self.say_private(player, "You are now \x034dead\x0f\x02.  You may observe the game,")
       self.say_private(player, "but please stay quiet until the game is over.")
       
-      return check_lovers()
+      return self.check_lovers(player)
   
   def check_lovers(self, player):
     if self.lovers and (self.lovers[0] in self.live_players or self.lovers[1] in self.live_players):
@@ -1138,7 +1185,7 @@ class WolfBot(SingleServerIRCBot):
         victims.append(lynchee)
       elif self.tally[lynchee] > highest:
         highest = self.tally[lynchee]
-        victims.clear()
+        del victims[:]
         victims.append(lynchee)
 
     return victims
@@ -1146,10 +1193,7 @@ class WolfBot(SingleServerIRCBot):
 
   def print_tally(self):
     "Publically display the vote tally."
-
-    majority_needed = (len(self.live_players)/2) + 1
-    msg = ("%d votes needed for a majority.  Current vote tally: " \
-           % majority_needed)
+    msg = "Current vote tally: "
     for lynchee in self.tally.keys():
       if self.tally[lynchee] > 1:
         msg = msg + ("(%s : %d votes) " % (lynchee, self.tally[lynchee]))
@@ -1173,7 +1217,6 @@ class WolfBot(SingleServerIRCBot):
 
     chname, chobj = self.channels.items()[0]
     users = chobj.users()
-    users.remove(self._nickname)
 
     for user in users:
       if user.upper() == nick.upper():
@@ -1189,7 +1232,7 @@ class WolfBot(SingleServerIRCBot):
     # sanity checks
     if self.time != "day":
       self.reply(e, "Sorry, lynching only happens during the day.")
-    elif self.day_timer < (DAY_LENGTH / 2):
+    elif int(time.time() - self.day_timer) < (DAY_LENGTH / 2):
       self.reply(e, "Sorry, you can only vote during the voting period.")
     elif lyncher not in self.live_players:
       self.reply(e, "Um, only living players can vote to lynch someone.")
@@ -1328,7 +1371,7 @@ class WolfBot(SingleServerIRCBot):
         if lover1 == lover2:
           self.reply(e, "You can't lover someone with themselves!")
           return
-        self.lovers(e, lover1.strip(), lover2.strip())
+        self.lover(e, lover1.strip(), lover2.strip())
         return
     self.reply(e, "Lover who?")
   
