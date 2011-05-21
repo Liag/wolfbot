@@ -44,6 +44,23 @@ DAY_LENGTH = 120 #Voting period is half this
 NIGHT_LENGTH = 60
 MIN_USERS = 5
 WOLF_TRESHOLD_MULTI = 8 #How many players per wolf (max three wolves)
+# Chances for each role on first role roll in percent
+# Should add up to 100%
+SEER_CHANCE = 75
+MYSTIC_CHANCE = 9
+ANGEL_CHANCE = 6
+NINJA_CHANCE = 4
+CUPID_CHANCE = 3
+ELDER_CHANCE = 2
+WATCHMAN_CHANCE = 1
+"""SEER_CHANCE = 0
+MYSTIC_CHANCE = 100
+ANGEL_CHANCE = 0
+NINJA_CHANCE = 0
+CUPID_CHANCE = 0
+ELDER_CHANCE = 0
+WATCHMAN_CHANCE = 0"""
+
 
 #---------------------------------------------------------------------
 # General texts for narrating the game.  Change these global strings
@@ -572,10 +589,10 @@ class WolfBot(SingleServerIRCBot):
       self.game_starter = game_starter
       self.live_players.append(game_starter)
       self.say_public("A new game has been started by %s; "
-          "say '%s: join' to join the game."
-          % (self.game_starter, self.connection.get_nickname()))
-      self.say_public("%s: Say '%s: start' when everyone has joined."
-          % (self.game_starter, self.connection.get_nickname()))
+          "say '!join' to join the game."
+          % self.game_starter)
+      self.say_public("%s: Say '!start' when everyone has joined."
+          % self.game_starter)
       self.fix_modes()
       self.game_start_timer = time.time()
       return
@@ -634,27 +651,32 @@ class WolfBot(SingleServerIRCBot):
           role = 0
           while role == 0:
             role = random.randint(1, 100)
-            if role == 100:
+            if role > (100 - WATCHMAN_CHANCE):
               if self.watchman != None:
                 role = 0
               else:
                 self.watchman = users.pop(random.randrange(len(users)))
-            elif role > 96:
+            elif role > (CUPID_CHANCE + ANGEL_CHANCE + NINJA_CHANCE + MYSTIC_CHANCE + SEER_CHANCE):
               if self.village_elder != None:
                 role = 0
               else:
                 self.village_elder = users.pop(random.randrange(len(users)))
-            elif role > 92:
+            elif role > (ANGEL_CHANCE + NINJA_CHANCE + MYSTIC_CHANCE + SEER_CHANCE):
               if self.cupid != None:
                 role = 0
               else:
                 self.cupid = users.pop(random.randrange(len(users)))
-            elif role > 87:
+            elif role > (ANGEL_CHANCE + MYSTIC_CHANCE + SEER_CHANCE):
               if self.ninja != None:
                 role = 0
               else:
                 self.ninja = users.pop(random.randrange(len(users)))
-            elif role > 80:
+            elif role > (MYSTIC_CHANCE + SEER_CHANCE):
+              if self.angel != None:
+                role = 0
+              else:
+                self.angel = users.pop(random.randrange(len(users)))
+            elif role > SEER_CHANCE:
               if self.mystic != None:
                 role = 0
               else:
@@ -943,8 +965,8 @@ class WolfBot(SingleServerIRCBot):
       if assassinated is False:
         self.say_public(("The night seems to have transpired peacefully."))
       else:
-        self.say_public("The village awakes in horror..." + \
-                        "to find the body of \x034%s\x0f\x02, killed silently in their sleep!" % self.ninja_target)
+        self.say_public("The village awakes in horror...")
+        self.say_public("to find the body of \x034%s\x0f\x02, killed silently in their sleep!" % self.ninja_target)
         
       if self.watchman is not None:
         if self.wolf_target is None:
@@ -1001,6 +1023,10 @@ class WolfBot(SingleServerIRCBot):
     if self.gamestate != self.GAMESTATE_RUNNING:
       self.reply(e, "No game is in progress.")
       return
+      
+    if who == nm_to_n(e.source()).strip("&"):
+      self.reply(e, "You cannot see yourself.")
+      return
     
     if self.time != "night":
       self.reply(e, "Are you a seer?  In any case, it's not nighttime.")
@@ -1041,8 +1067,8 @@ class WolfBot(SingleServerIRCBot):
           else:
             self.mystic_target = who
             
-            self.reply(e, "The gods will surely see to it that nothing happens" + \
-                          "to this person tonight.")
+            self.reply(e, "The gods will surely see to it that nothing happens " + \
+                          "to %s tonight." % who)
             if self.check_night_done():
               self.day()
 
@@ -1051,6 +1077,10 @@ class WolfBot(SingleServerIRCBot):
     
     if self.gamestate != self.GAMESTATE_RUNNING:
       self.reply(e, "No game is in progress.")
+      return
+      
+    if who == nm_to_n(e.source()).strip("&"):
+      self.reply(e, "You cannot assassinate yourself.")
       return
 	  
     if self.time != "night":
@@ -1067,8 +1097,8 @@ class WolfBot(SingleServerIRCBot):
           else:
             self.ninja_target = who
             
-            self.reply(e, "You carry out the assassination silently." + \
-                           "No one else noticed anything.")
+            self.reply(e, "You carry out the assassination silently.")
+            self.reply(e, "No one else noticed anything.")
             
             if self.check_night_done():
               self.day()
@@ -1087,7 +1117,7 @@ class WolfBot(SingleServerIRCBot):
         self.reply(e, "Huh?")
       else:
         if who1 not in self.live_players or who2 not in self.live_players:
-          self.reply(e, "One or both of the players you are trying to lover" + \
+          self.reply(e, "One or both of the players you are trying to lover " + \
                         "are either nonexistant or dead.")
         else:
           if self.lovers:
@@ -1109,6 +1139,10 @@ class WolfBot(SingleServerIRCBot):
 	
     if self.gamestate != self.GAMESTATE_RUNNING:
       self.reply(e, "No game is in progress.")
+      return
+    
+    if who == nm_to_n(e.source()).strip("&"):
+      self.reply(e, "You cannot kill yourself.")
       return
     
     if self.time != "night":
@@ -1391,7 +1425,7 @@ class WolfBot(SingleServerIRCBot):
     if len(args) == 1:
       ass_target = self.match_name(args[0].strip())
       if ass_target is not None:
-        self.see(e, ass_target.strip())
+        self.assassinate(e, ass_target.strip())
         return
     self.reply(e, "Assassinate whom?")
   
@@ -1498,7 +1532,7 @@ class WolfBot(SingleServerIRCBot):
 
     # Dead players should not speak.
     if nm_to_n(e.source()) in self.dead_players:
-      if (cmd != "stats") and (cmd != "status") and (cmd != "help"):
+      if (cmd != "stats") and (cmd != "status") and (cmd != "help") and (cmd != "end"):
         self.reply(e, "Please -- dead players should keep quiet.")
         return 0
 
