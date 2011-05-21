@@ -54,11 +54,11 @@ WOLF_TRESHOLD_MULTI = 8 #How many players per wolf (max three wolves)
 new_game_texts = \
 ["This is a game of paranoia and psychological intrigue.  Everyone\
  in this group appears to be a common villager, but several of\
- you are 'special'.  One or two of you are actually evil werewolves, seeking\
- to kill everyone while concealing their identity.",
+ you are 'special'.  One or more of you are actually evil werewolves, seeking\
+ to kill everyone while concealing your identity.",
 
- "And one of you is also a 'seer'; you have the ability to learn\
- whether a specific person is or is not a werewolf.",
+ "Depending on the number of players, there are also additional villager roles\
+ like the seer and the mystic.",
 
  "As a community, your group objective is to weed out the werewolves\
  and lynch them before you're all killed in your sleep."]
@@ -256,11 +256,11 @@ class WolfBot(SingleServerIRCBot):
             
           #print "elapsed: " + str(elapsed) + ", elapsed mod 10: " + str(elapsed % 10)
           if elapsed % 10 == 0:
-            self.say_public("Players who have currently joined:")
-            i = 1
+            players = self.game_starter
             for player in self.live_players:
-              self.say_public("*** %s" % player)
-              i += 1
+              if player is not self.game_starter:
+                players += ", " + player
+            self.say_public("Players who have currently joined: %s" % players)
       self.old_elapsed = elapsed
                   
     if self.gamestate == self.GAMESTATE_RUNNING:
@@ -284,7 +284,7 @@ class WolfBot(SingleServerIRCBot):
             else:
               victim = victims[random.randrange(len(victims))]
         
-            self.say_public(("The majority has voted to lynch %s!! "
+            self.say_public(("The villagers have voted to lynch %s!! "
                              "Mob violence ensues.  This player is now \x034dead\x0f\x02." % victim))
             if not self.kill_player(victim):
             # Day is done;  flip bot back into night-mode.
@@ -377,7 +377,7 @@ class WolfBot(SingleServerIRCBot):
                          "you may assassinate someone else this night." % nick)
       if self.cupid is not None and nick == self.cupid:
         self.say_public("%s was a cupid. The subjects of his work surely won't mourn him." % nick)
-      if self.lovers and nick == self.lovers[0] or nick == self.lovers[1]:
+      if self.lovers and (nick == self.lovers[0] or nick == self.lovers[1]):
         self.check_lovers(nick)
       if self.village_elder is not None and nick == self.village_elder:
         self.say_public("%s was the village elder. The villagers are sorry for his lots." % nick)
@@ -614,8 +614,6 @@ class WolfBot(SingleServerIRCBot):
         else:
           roles = 7
         
-        print "roles:" + str(roles)
-          
         self.wolves.append(users.pop(random.randrange(len(users))))
 		
         if len(self.live_players) > WOLF_TRESHOLD_MULTI:
@@ -727,6 +725,8 @@ class WolfBot(SingleServerIRCBot):
   def reveal_all_identities(self):
     "Print everyone's identities."
     
+    self.say_public("*** Player roles:")
+    
     if len(self.originalwolves) == 3:
       self.say_public(("*** Wolves: %s, %s and %s" % (self.originalwolves[0], self.originalwolves[1], self.originalwolves[2])))
     if len(self.originalwolves) == 2:
@@ -748,7 +748,9 @@ class WolfBot(SingleServerIRCBot):
       self.say_public(("*** Village elder: %s" % self.village_elder))
     if self.watchman != None:
       self.say_public(("*** Watchman: %s" % self.watchman))
-
+    
+    self.say_public("Everyone else was a normal villager.")
+    
   def check_game_over(self):
     """End the game if either villagers or werewolves have won.
     Return 1 if game is over, 0 otherwise."""
@@ -762,16 +764,46 @@ class WolfBot(SingleServerIRCBot):
     # If the number of non-wolves is the same as the number of wolves,
     # then the wolves win.
     if (len(self.live_players) - len(self.wolves)) == len(self.wolves):
-      self.say_public(\
-        "There are now an equal number of villagers and werewolves.")
-      msg = "The werewolves have no need to hide anymore; "
-      msg = msg + "They attack the remaining villagers. "
-      msg = msg + "The \x034werewolves\x0f\x02 have \x034won\x0f."
-      self.say_public(msg)
+      lover_pos = check_wolf_lovers()
+      if check_wolf_lovers():
+        if len(self.wolves) == 1:
+          self.say_public("Everyone except the lovers are dead! The \x034lovers\x0f\x02 have \x034won\x0f.")
+          self.end_game(self.game_starter)
+        else:
+          self.say_public("There are now an equal number of villagers and werewolves.")
+          msg = "The werewolves have no need to hide anymore; "
+          msg = msg + "They attack the remaining villagers. "
+          msg = msg + "Amongst the villagers who were killed, " + lovers[lover_pos[0]] + "finds their dead lover + " lovers[lover_pos[1]] + "."
+          msg = msg + "In shock and grief, " + lovers[lover_pos[0]] + " commits suicide."
+          msg = msg + "The \x034werewolves\x0f\x02 have \x034won\x0f."
+          self.say_public(msg)
+      else:
+        self.say_public(\
+          "There are now an equal number of villagers and werewolves.")
+        msg = "The werewolves have no need to hide anymore; "
+        msg = msg + "They attack the remaining villagers. "
+        msg = msg + "The \x034werewolves\x0f\x02 have \x034won\x0f."
+        self.say_public(msg)
+        
       self.end_game(self.game_starter)
       return 1
-
+      
     return 0
+    
+  def check_wolf_lovers(self):
+    """Check if the lovers are a wolf and a villager.
+    Returns the positions of the lovers or an empty list if not """
+    lover_pos = []
+    if self.lovers and (self.lovers[0] in self.live_players and self.lovers[1] in self.live_players):
+      if (self.lovers[0] in self.wolves) and not (self.lovers[1] in self.wolves):
+        lover_pos[0] = 0
+        lover_pos[1] = 1
+        return lover_pos
+      elif (not self.lovers[0] in self.wolves) and (self.lovers[1] in self.wolves):
+        lover_pos[0] = 1
+        lover_pos[1] = 0
+        return lover_pos
+    return -1
 
 
   def check_night_done(self, elapsed = 0):
@@ -789,7 +821,7 @@ class WolfBot(SingleServerIRCBot):
         seer_done = 1
     
     # Is the mystic done guarding
-    if self.mystic is None or self.seer not in self_live_players:
+    if self.mystic is None or self.seer not in self.live_players:
       mystic_done = 1
     else:
       if self.mystic_target is None:
@@ -1219,17 +1251,18 @@ class WolfBot(SingleServerIRCBot):
     users = chobj.users()
 
     for user in users:
-      if user.upper() == nick.upper():
-        return user
+      if (user.strip("&")).upper() == nick.upper():
+        return user.strip("&")
     return None
 
   def lynch_vote(self, e, lynchee, secret = False):
     "Register a vote to lynch LYNCHEE."
 	
-    if self.gamestate != self.GAMESTATE_RUNNING:
-        self.reply(e, "No game is in progress.")
     lyncher = nm_to_n(e.source())
     # sanity checks
+    if self.gamestate != self.GAMESTATE_RUNNING:
+        self.reply(e, "No game is in progress.")
+        return
     if self.time != "day":
       self.reply(e, "Sorry, lynching only happens during the day.")
     elif int(time.time() - self.day_timer) < (DAY_LENGTH / 2):
@@ -1258,7 +1291,7 @@ class WolfBot(SingleServerIRCBot):
           else:
             victim = victims[random.randrange(len(victims))]
             
-          self.say_public(("The majority has voted to lynch %s!! "
+          self.say_public(("The villagers have voted to lynch %s!! "
                              "Mob violence ensues.  This player is now \x034dead\x0f\x02." % victim))
           if not self.kill_player(victim):
           # Day is done;  flip bot back into night-mode.
@@ -1481,12 +1514,10 @@ class WolfBot(SingleServerIRCBot):
     # unknown command:  respond appropriately.
 
     # reply either to public channel, or to person who /msg'd
-    if self.time is None:
-      self.reply(e, "That command makes no sense.")
-    elif self.time == "night":
+    if self.time == "night":
       self.reply(e, "SSSHH!  It's night, everyone's asleep!")
-    elif self.time == "day":
-      self.reply(e, "Hm?  Get back to lynching.")
+    else:
+      self.reply(e, "That command makes no sense.")
 
 
 def usage(exitcode=1):
