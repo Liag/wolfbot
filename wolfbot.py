@@ -773,8 +773,8 @@ class WolfBot(SingleServerIRCBot):
           self.say_public("There are now an equal number of villagers and werewolves.")
           msg = "The werewolves have no need to hide anymore; "
           msg = msg + "They attack the remaining villagers. "
-          msg = msg + "Amongst the villagers who were killed, " + lovers[lover_pos[0]] + "finds their dead lover + " lovers[lover_pos[1]] + "."
-          msg = msg + "In shock and grief, " + lovers[lover_pos[0]] + " commits suicide."
+          msg = msg + "Amongst the villagers who were killed, " + self.lovers[lover_pos[0]] + "finds their dead lover " + self.lovers[lover_pos[1]] + "."
+          msg = msg + "In shock and grief, " + self.lovers[lover_pos[0]] + " commits suicide."
           msg = msg + "The \x034werewolves\x0f\x02 have \x034won\x0f."
           self.say_public(msg)
       else:
