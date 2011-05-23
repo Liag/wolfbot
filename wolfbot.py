@@ -36,12 +36,36 @@ import irclib
 from irclib import nm_to_n, nm_to_h, irc_lower, parse_channel_modes
 from botcommon import OutputManager
 
+# Define colours and styles
+IRC_UNDERLINE = "\x1f"
 IRC_BOLD = "\x02"
+IRC_DEFAULT = "\x0f"
 IRC_BLUE = "\x032"
 IRC_GREEN = "\x033"
 IRC_RED = "\x034"
+IRC_BROWN = "\x035"
 IRC_PURPLE = "\x036"
-IRC_WHITE = "\x0f"
+IRC_ORANGE = "\x037"
+IRC_YELLOW = "\x038"
+IRC_LIME = "\x039"
+IRC_TEAL = "\x0310"
+IRC_AQUA = "\x0311"
+IRC_ROYAL = "\x0312"
+IRC_PINK = "\x0313"
+IRC_GREY = "\x0314"
+IRC_SILVER = "\x0315"
+
+# Define role colours to be used throughout the text
+WOLF_COLOR = IRC_RED
+SEER_COLOR = IRC_AQUA
+MYSTIC_COLOR = IRC_GREEN
+ANGEL_COLOR = IRC_SILVER
+NINJA_COLOR = IRC_PURPLE
+CUPID_COLOR = IRC_PINK
+ELDER_COLOR = IRC_BROWN
+WATCHMAN_COLOR = IRC_LIME
+LOVERS_COLOR = IRC_ORANGE
+
 url = "https://github.com/Liag/wolfbot"
 
 # Game config
@@ -51,22 +75,23 @@ NIGHT_LENGTH = 60
 MIN_USERS = 5
 WOLF_THRESHOLD_MULTI = 8 # How many players per wolf (max three wolves)
 END_DISABLED = 0 # If the game starter has access to the !end command
+
 # Chances for each role on first role roll in percent
 # Should add up to 100%
-"""SEER_CHANCE = 75
+SEER_CHANCE = 75
 MYSTIC_CHANCE = 9
 ANGEL_CHANCE = 6
 NINJA_CHANCE = 4
 CUPID_CHANCE = 3
 ELDER_CHANCE = 2
-WATCHMAN_CHANCE = 1"""
-SEER_CHANCE = 0
+WATCHMAN_CHANCE = 1
+"""SEER_CHANCE = 0
 MYSTIC_CHANCE = 0
 ANGEL_CHANCE = 0
-NINJA_CHANCE = 100
+NINJA_CHANCE = 0
 CUPID_CHANCE = 0
 ELDER_CHANCE = 0
-WATCHMAN_CHANCE = 0
+WATCHMAN_CHANCE = 100"""
 
 
 #---------------------------------------------------------------------
@@ -90,38 +115,38 @@ new_game_texts = \
 # Printed when informing players of their initial roles:
 
 wolf_intro_text = \
-"You are a " + IRC_BOLD + IRC_RED + "werewolf" + IRC_BOLD + IRC_WHITE + ".  You want to kill everyone while they sleep. \
+"You are a " + IRC_BOLD + WOLF_COLOR + "werewolf" + IRC_DEFAULT + ".  You want to kill everyone while they sleep. \
 Whatever happens, keep your identity secret.  Act natural!"
 
 seer_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + IRC_RED + "seer" + IRC_BOLD + IRC_WHITE + ".  Later on, you'll get chances to \
+"You're a villager, but also a " + IRC_BOLD + SEER_COLOR + "seer" + IRC_DEFAULT + ".  Later on, you'll get chances to \
 learn whether someone is or isn't a werewolf.  Keep your identity \
 secret, or the werewolves may kill you!"
 
 mystic_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + IRC_RED + "mystic" + IRC_BOLD + IRC_WHITE + ".  Later on, you'll get chances to \
+"You're a villager, but also a " + IRC_BOLD + MYSTIC_COLOR + "mystic" + IRC_DEFAULT + ".  Later on, you'll get chances to \
 protect someone from harm using your powers. Keep your identity \
 secret, or the werewolves may kill you!"
 
 angel_intro_text = \
-"You're a villager, but also an " + IRC_BOLD + IRC_RED + "angel" + IRC_BOLD + IRC_WHITE + ".  You are immune against the wolves' attacks!"
+"You're a villager, but also an " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + ".  You are immune against the wolves' attacks!"
 
 ninja_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + IRC_RED + "ninja" + IRC_BOLD + IRC_WHITE + ".  You have a single chance to \
+"You're a villager, but also a " + IRC_BOLD + NINJA_COLOR + "ninja" + IRC_DEFAULT + ".  You have a single chance to \
 assassinate someone during the course of the game. Keep your identity \
 secret, or the werewolves may kill you!"
 
 cupid_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + IRC_RED + "cupid" + IRC_BOLD + IRC_WHITE + ".  During the first night, you can \
+"You're a villager, but also a " + IRC_BOLD + CUPID_COLOR + "cupid" + IRC_DEFAULT + ".  During the first night, you can \
 make two people fall in love with each other. Choose wisely!"
 
 elder_intro_text = \
-"You're a villager, but also the revered " + IRC_BOLD + IRC_RED + "village elder" + IRC_BOLD + IRC_WHITE + ".  During the  \
+"You're a villager, but also the revered " + IRC_BOLD + ELDER_COLOR + "village elder" + IRC_DEFAULT + ".  During the  \
 days, you can vote twice, once with a secret vote. Keep your identity \
 secret, or the werewolves may kill you!"
 
 watchman_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + IRC_RED + "watchman" + IRC_BOLD + IRC_WHITE + ".  Later on, you will be notified \
+"You're a villager, but also a " + IRC_BOLD + WATCHMAN_COLOR + "watchman" + IRC_DEFAULT + ".  Later on, you will be notified \
 of what has transpired if nobody died during the night. Keep your identity \
 secret, or the werewolves may kill you!"
 
@@ -132,7 +157,7 @@ villager_intro_text = \
 # Printed when night begins:
 
 night_game_texts = \
-["Darkness falls: it is " + IRC_BOLD + IRC_PURPLE + "night" + IRC_WHITE + IRC_BOLD + ".",
+["Darkness falls: it is " + IRC_BOLD + IRC_PURPLE + "night" + IRC_DEFAULT + ".",
  "The village enters a restless slumber, each inhabitant fearing that they are next...",
  "Who knows what horrors the dark will bring?"]
 
@@ -164,7 +189,7 @@ night_ninja_texts = \
 night_cupid_texts = \
 ["As it is the first night, you have the power to make two people fall \
  in love with each other.",
- "Please type 'lovers <nickname1> <nickname>' (as a private message to me)\
+ "Please type 'lovers <nickname1> <nickname2>' (as a private message to me)\
   to fire your arrows.",
  "Remember that this is your only chance! If you do not act now, your \
   powers will still be forfeit for the rest of the game."]
@@ -189,7 +214,7 @@ day_game_texts = \
 "You may now decide to lynch one player. If you do not vote two nights in a row, the powers of good will cast you down!",
  "When each player is ready, send me the command:  'vote <nickname>',",
  "and I will lynch the player who gets the most votes!",
- "Remember:  votes cannot be changed after you have voted."]
+ "Remember: votes cannot be changed after you have voted."]
  
 day_elder_texts = \
 ["As the village elder, you have a secret vote at your disposal each voting session.",
@@ -219,7 +244,7 @@ class WolfBot(SingleServerIRCBot):
     self.debug = debug
     self.moderation = True
     self._reset_gamedata()
-    self.queue = OutputManager(self.connection)
+    self.queue = OutputManager(self.connection, 0.01)
     self.queue.start()
     try:
       self.start()
@@ -290,7 +315,7 @@ class WolfBot(SingleServerIRCBot):
       if self.time == "night":
         elapsed = int(curTime - self.night_timer)
         if self.old_elapsed != elapsed:
-          if self.check_night_done():
+          if self.check_night_done(elapsed):
             self.day()
         self.old_elapsed = elapsed
       elif self.time == "day":
@@ -308,7 +333,7 @@ class WolfBot(SingleServerIRCBot):
               victim = victims[random.randrange(len(victims))]
         
             self.say_public("The villagers have voted to lynch " + IRC_BOLD + victim + IRC_BOLD + "!! "
-                             "Mob violence ensues.  This player is now " + IRC_RED + IRC_BOLD + "dead" + IRC_WHITE + IRC_BOLD + ".")
+                             "Mob violence ensues.  This player is now " + IRC_RED + IRC_BOLD + "dead" + IRC_DEFAULT + ".")
             if not self.kill_player(victim):
             # Day is done;  flip bot back into night-mode.
               self.night()
@@ -565,9 +590,8 @@ class WolfBot(SingleServerIRCBot):
 
   def say_public(self, text):
     "Print TEXT into public channel, for all to see."
-
+    
     self.queue.send(text, self.channel)
-
 
   def say_private(self, nick, text):
     "Send private message of TEXT to NICK."
@@ -754,37 +778,93 @@ class WolfBot(SingleServerIRCBot):
     
     self.say_public("*** Player roles:")
     
+    wolf_msg = []
+    for i in range(len(self.originalwolves)):
+      if self.originalwolves[i] in self.live_players:
+        wolf_msg.append(IRC_UNDERLINE + self.originalwolves[i])
+      else:
+        wolf_msg.append(self.originalwolves[i])
     if len(self.originalwolves) == 3:
-      self.say_public(("*** Wolves: %s, %s and %s" % (self.originalwolves[0], self.originalwolves[1], self.originalwolves[2])))
+      self.say_public("*** " + IRC_BOLD + WOLF_COLOR + "Wolves: " + IRC_DEFAULT + IRC_BOLD + wolf_msg[0] + IRC_DEFAULT + ", " + IRC_BOLD + wolf_msg[1] + IRC_DEFAULT + " and " + IRC_BOLD + wolf_msg[2])
     if len(self.originalwolves) == 2:
-      self.say_public(("*** Wolves: %s and %s" % (self.originalwolves[0], self.originalwolves[1])))
+      self.say_public("*** " + IRC_BOLD + WOLF_COLOR + "Wolves: " + IRC_DEFAULT + IRC_BOLD + wolf_msg[0] + IRC_DEFAULT + " and " + IRC_BOLD + wolf_msg[1])
     else:
-      self.say_public(("*** Wolf: %s" % (self.originalwolves[0])))
+      self.say_public("*** " + IRC_BOLD + WOLF_COLOR + "Wolf: " + IRC_DEFAULT + IRC_BOLD + wolf_msg[0])
     
     if self.seer != None:
-      self.say_public(("*** Seer: %s" % self.seer))
+      if self.seer in self.live_players:
+        seer_msg = IRC_UNDERLINE + self.seer
+      else:
+        seer_msg = self.seer
+      self.say_public("*** " + IRC_BOLD + SEER_COLOR + "Seer: " + IRC_DEFAULT + IRC_BOLD + seer_msg)
     if self.mystic != None:
-      self.say_public(("*** Mystic: %s" % self.mystic))
+      if self.mystic in self.live_players:
+        mystic_msg = IRC_UNDERLINE + self.mystic
+      else:
+        mystic_msg = self.mystic
+      self.say_public("*** " + IRC_BOLD + MYSTIC_COLOR + "Mystic: " + IRC_DEFAULT + IRC_BOLD + mystic_msg)
     if self.angel != None:
-      self.say_public(("*** Angel: %s" % self.angel))
+      if self.angel in self.live_players:
+        angel_msg = IRC_UNDERLINE + self.angel
+      else:
+        angel_msg = self.angel
+      self.say_public("*** " + IRC_BOLD + ANGEL_COLOR + "Angel: " + IRC_DEFAULT + IRC_BOLD + angel_msg)
     if self.ninja != None:
-      self.say_public(("*** Ninja: %s" % self.ninja))
+      if self.ninja in self.live_players:
+        ninja_msg = IRC_UNDERLINE + self.ninja
+      else:
+        ninja_msg = self.ninja
+      self.say_public("*** " + IRC_BOLD + NINJA_COLOR + "Ninja: " + IRC_DEFAULT + IRC_BOLD + ninja_msg)
     if self.cupid != None:
-      self.say_public(("*** Cupid: %s" % self.cupid))
+      if self.cupid in self.live_players:
+        cupid_msg = IRC_UNDERLINE + self.cupid
+      else:
+        cupid_msg = self.cupid
+      self.say_public("*** " + IRC_BOLD + CUPID_COLOR + "Cupid: " + IRC_DEFAULT + IRC_BOLD + cupid_msg)
     if self.village_elder != None:
-      self.say_public(("*** Village elder: %s" % self.village_elder))
+      if self.village_elder in self.live_players:
+        village_elder_msg = IRC_UNDERLINE + self.village_elder
+      else:
+        village_elder_msg = self.village_elder
+      self.say_public("*** " + IRC_BOLD + ELDER_COLOR + "Village elder: " + IRC_DEFAULT + IRC_BOLD + village_elder_msg)
     if self.watchman != None:
-      self.say_public(("*** Watchman: %s" % self.watchman))
-    
-    self.say_public("Everyone else was a normal villager.")
+      if self.watchman in self.live_players:
+        watchman_msg = IRC_UNDERLINE + self.watchman
+      else:
+        watchman_msg = self.watchman
+      self.say_public("*** " + IRC_BOLD + WATCHMAN_COLOR + "Watchman: " + IRC_DEFAULT + IRC_BOLD + watchman_msg)
+    if self.lovers:
+      lover_msg = []
+      for i in range(self.lovers):
+        if self.lovers[i] in self.live_players:
+          lover_msg.append(IRC_UNDERLINE + self.lovers[i])
+        else:
+          lover_msg.append(self.lovers[i])
+      self.say_public("*** " + IRC_BOLD + LOVERS_COLOR + "Lovers: " + IRC_DEFAULT + IRC_BOLD + lover_msg[0] + IRC_DEFAULT + " and " + IRC_BOLD + lover_msg[0])
+    if self.villagers:
+      if self.villagers[0] in self.live_players:
+        msg = "*** " + IRC_BOLD + "Villagers: " + IRC_UNDERLINE + self.villagers[0] + IRC_DEFAULT
+      else:
+        msg = "*** " + IRC_BOLD + "Villagers: " + self.villagers[0]
+      for i in range(1, len(self.villagers)):
+        if self.villagers[i] in self.live_players:
+          msg += ", " + IRC_UNDERLINE + self.villagers[i] + IRC_DEFAULT
+        else:
+          msg += ", " + self.villagers[i]
+      self.say_public(msg)
     
   def check_game_over(self):
     """End the game if either villagers or werewolves have won.
     Return 1 if game is over, 0 otherwise."""
-
+    
+    # If everyone is dead, everyone loses.
+    if not self.live_players:
+      self.say_public("Everyone is dead! " + IRC_BOLD + "Nobody wins.")
+      self.end_game(self.game_starter)
+      return 1
     # If all wolves are dead, the villagers win.
-    if len(self.wolves) == 0:
-      self.say_public("The wolves are dead!  The " + IRC_BOLD + IRC_RED + "villagers" + IRC_BOLD + IRC_WHITE + " have " + IRC_BOLD + IRC_RED + "won" + IRC_BOLD + IRC_WHITE + ".")
+    if not self.wolves:
+      self.say_public("The wolves are dead!  The " + IRC_BOLD + IRC_RED + "villagers" + IRC_DEFAULT + " have " + IRC_BOLD + IRC_RED + "won" + IRC_DEFAULT + ".")
       self.end_game(self.game_starter)
       return 1
 
@@ -794,7 +874,7 @@ class WolfBot(SingleServerIRCBot):
       lover_pos = self.check_wolf_lovers()
       if lover_pos:
         if len(self.wolves) == 1:
-          self.say_public("Everyone except the lovers are dead! The " + IRC_BOLD + IRC_RED + "lovers" + IRC_BOLD + IRC_WHITE + " have " + IRC_BOLD + IRC_RED + "won" + IRC_BOLD + IRC_WHITE + ".")
+          self.say_public("Everyone except the lovers are dead! The " + IRC_BOLD + IRC_RED + "lovers" + IRC_DEFAULT + " have " + IRC_BOLD + IRC_RED + "won" + IRC_DEFAULT + ".")
           self.end_game(self.game_starter)
         else:
           self.say_public("There are now an equal number of villagers and werewolves.")
@@ -802,15 +882,23 @@ class WolfBot(SingleServerIRCBot):
           msg = msg + "They attack the remaining villagers. "
           msg = msg + "Amongst the villagers who were killed, " + self.lovers[lover_pos[0]] + "finds their dead lover " + self.lovers[lover_pos[1]] + "."
           msg = msg + "In shock and grief, " + self.lovers[lover_pos[0]] + " commits suicide."
-          msg = msg + "The " + IRC_BOLD + IRC_RED + "werewolves" + IRC_BOLD + IRC_WHITE + " have " + IRC_BOLD + IRC_RED + "won" + IRC_BOLD + IRC_WHITE + "."
+          msg = msg + "The " + IRC_BOLD + IRC_RED + "werewolves" + IRC_DEFAULT + " have " + IRC_BOLD + IRC_RED + "won" + IRC_DEFAULT + "."
           self.say_public(msg)
+          self.live_players.remove(self.lovers[lover_pos[0]])
+          self.dead_players.append(self.lovers[lover_pos[0]])
+          for player in self.live_players:
+            if player not in self.wolves:
+              self.live_players.remove(player)
       else:
         self.say_public(\
           "There are now an equal number of villagers and werewolves.")
         msg = "The werewolves have no need to hide anymore; "
         msg = msg + "They attack the remaining villagers. "
-        msg = msg + "The " + IRC_BOLD + IRC_RED + "werewolves" + IRC_BOLD + IRC_WHITE + " have " + IRC_BOLD + IRC_RED + "won" + IRC_BOLD + IRC_WHITE + "."
+        msg = msg + "The " + IRC_BOLD + IRC_RED + "werewolves" + IRC_DEFAULT + " have " + IRC_BOLD + IRC_RED + "won" + IRC_DEFAULT + "."
         self.say_public(msg)
+        for player in self.live_players:
+          if player not in self.wolves:
+            self.live_players.remove(player)
         
       self.end_game(self.game_starter)
       return 1
@@ -823,20 +911,20 @@ class WolfBot(SingleServerIRCBot):
     lover_pos = []
     if self.lovers and (self.lovers[0] in self.live_players and self.lovers[1] in self.live_players):
       if (self.lovers[0] in self.wolves) and not (self.lovers[1] in self.wolves):
-        lover_pos[0] = 0
-        lover_pos[1] = 1
+        lover_pos.append(0)
+        lover_pos.append(1)
         return lover_pos
       elif (not self.lovers[0] in self.wolves) and (self.lovers[1] in self.wolves):
-        lover_pos[0] = 1
-        lover_pos[1] = 0
+        lover_pos.append(1)
+        lover_pos.append(0)
         return lover_pos
     return lover_pos
 
 
   def check_night_done(self, elapsed = 0):
     "Check if nighttime is over.  Return 1 if night is done, 0 otherwise."
-    
-    if (elapsed > NIGHT_LENGTH) or (int(time.time() - self.night_timer) > NIGHT_LENGTH):
+
+    if (elapsed > NIGHT_LENGTH):
       return 1
     # Is the seer done seeing?
     if self.seer is None or self.seer not in self.live_players:
@@ -869,7 +957,7 @@ class WolfBot(SingleServerIRCBot):
     if self.cupid is None or self.cupid not in self.live_players or not self.first_night:
       cupid_done = 1
     else:
-      if lovers:
+      if self.lovers:
         cupid_done = 1
       else:
         cupid_done = 0
@@ -890,16 +978,15 @@ class WolfBot(SingleServerIRCBot):
     "Declare a NIGHT episode of gameplay."
 
     chname, chobj = self.channels.items()[0]
-
+    
     self.time = "night"
-    self.night_timer = time.time()
     if not self.first_night:
       #Check if someone hasn't voted two days in a row
       if self.nonvoters:
         for voter in self.nonvoters:
           if voter not in self.villager_votes:
-            self.say_public("%s has disobeyed the rules and has not voted for two days in a row." % voter)
-            self.say_public("%s suffers a grim, mysterious death." % voter)
+            self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row.")
+            self.say_public(IRC_BOLD + voter + IRC_BOLD + " suffers a grim, mysterious death.")
             self.kill_player(voter, False)
              
       if self.check_game_over():
@@ -931,12 +1018,12 @@ class WolfBot(SingleServerIRCBot):
     if self.ninja is not None and self.ninja in self.live_players and self.ninja_target is not None:
       for text in night_ninja_texts:
         self.say_private(self.ninja, text)
-    if self.cupid is not None and self.cupid in self.live_players and self.first_night is True:
+    if self.cupid is not None and self.cupid in self.live_players and self.first_night:
       for text in night_cupid_texts:
         self.say_private(self.cupid, text)
     if self.watchman is not None and self.watchman in self.live_players:
       for text in night_watchman_texts:
-        self.say_private(self.seer, text)
+        self.say_private(self.watchman, text)
     for text in night_werewolf_texts:
       for wolf in self.wolves:
         self.say_private(wolf, text)
@@ -959,6 +1046,7 @@ class WolfBot(SingleServerIRCBot):
                         % self.wolves[0]))
     
     self.fix_modes(True)
+    self.night_timer = time.time()
     # ... bot is now in 'night' mode;  goes back to doing nothing but
     # waiting for commands.
 
@@ -969,28 +1057,28 @@ class WolfBot(SingleServerIRCBot):
     if self.first_night:
       self.first_night = False
     
-    self.day_timer = time.time()
+    self.day_extra_time = 0
     self.time = "day"
     
     # Discover dead bodies if someone has been killed during the night, depending on the actions of 
-    self.say_public(IRC_RED + IRC_BOLD + "Day" + IRC_WHITE + IRC_BOLD + " breaks!  Sunlight pierces the sky.")
+    self.say_public(IRC_YELLOW + "Day" + IRC_DEFAULT + " breaks!  Sunlight pierces the sky.")
     
     if self.seer_target is not None:
       role = ""
       if self.seer_target == self.mystic:
-        role = "the mystic."
+        role = MYSTIC_COLOR + "the mystic." + IRC_DEFAULT
       elif self.seer_target == self.angel:
-        role = "the angel."
+        role = ANGEL_COLOR + "the angel." + IRC_DEFAULT
       elif self.seer_target == self.ninja:
-        role = "the ninja."
+        role = NINJA_COLOR + "the ninja." + IRC_DEFAULT
       elif self.seer_target == self.cupid:
-        role = "the cupid."
+        role = CUPID_COLOR + "the cupid." + IRC_DEFAULT
       elif self.seer_target == self.village_elder:
-        role = "the village elder."
+        role = ELDER_COLOR + "the village elder." + IRC_DEFAULT
       elif self.seer_target == self.watchman:
-        role = "the watchman."
+        role = WATCHMAN_COLOR + "the watchman." + IRC_DEFAULT
       elif self.seer_target in self.wolves:
-        role = IRC_RED + "a werewolf!" + IRC_WHITE
+        role = WOLF_COLOR + "a werewolf!" + IRC_DEFAULT
       else:
         role = "a villager."
       self.say_private(self.seer, "Your dreams told you that " + IRC_BOLD + self.seer_target + IRC_BOLD + " is " + IRC_BOLD + role + IRC_BOLD)
@@ -1004,22 +1092,22 @@ class WolfBot(SingleServerIRCBot):
         self.say_public("The night seems to have transpired peacefully.")
       else:
         self.say_public("The village awakes in horror...")
-        self.say_public("to find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_BOLD + IRC_WHITE + ", killed silently in their sleep!")
+        self.say_public("to find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_DEFAULT + ", killed silently in their sleep!")
         
-      if self.watchman is not None and (self.wolf_target != self.ninja_target):
+      if self.watchman is not None:
         if self.wolf_target is None:
           self.say_private(self.watchman, "The werewolves didn't target anyone last night.")
-        else:
+        elif self.wolf_target is not None or (self.wolf_target == self.ninja_target):
           self.say_private(self.watchman, "The werewolves tried to kill %s last night, but failed." % self.wolf_target)
       
       if assassinated:
         self.kill_player(self.ninja_target, False)
     else:
       self.say_public("The village awakes in horror...")
-      self.say_public("to find the mutilated body of " + IRC_BOLD + IRC_RED + self.wolf_target + IRC_BOLD + IRC_WHITE + "!!")
+      self.say_public("to find the mutilated body of " + IRC_BOLD + IRC_RED + self.wolf_target + IRC_DEFAULT + "!!")
       self.kill_player(self.wolf_target, False)
       if assassinated:
-        self.say_public("They also find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_BOLD + IRC_WHITE + ", who mysteriously seems to have died without any noticeable wounds.")
+        self.say_public("They also find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_DEFAULT + ", who mysteriously seems to have died without any noticeable wounds.")
         
       if assassinated:
         self.kill_player(self.ninja_target, False)
@@ -1040,9 +1128,10 @@ class WolfBot(SingleServerIRCBot):
       self.say_public(text)
     if self.village_elder is not None and self.village_elder in self.live_players:
       for text in day_elder_texts:
-        say_private(self.village_elder, text)
+        self.say_private(self.village_elder, text)
     
     self.fix_modes()
+    self.day_timer = time.time()
     # ... bot is now in 'day' mode;  goes back to doing nothing but
     # waiting for commands.
 
@@ -1156,13 +1245,15 @@ class WolfBot(SingleServerIRCBot):
           if self.lovers:
             self.reply(e, "You're out of arrows for this game.")
           else:
-            self.lovers[0] = who1
-            self.lovers[1] = who2
+            self.lovers.append(who1)
+            self.lovers.append(who2)
             
-            self.reply(e, "Your arrows strike! %s and %s are now lovers." % who1, who2)
+            self.reply(e, "Your arrows strike! " + IRC_BOLD + who1 + IRC_DEFAULT + " and " + IRC_BOLD + who2 + IRC_DEFAULT + " are now lovers.")
             
-            self.reply(who1, "Cupid's arrow has struck you! Your lover is %s." % who2)
-            self.reply(who2, "Cupid's arrow has struck you! Your lover is %s." % who1)
+            self.say_private(who1, "Cupid's arrow has struck you! Your lover is " + IRC_BOLD + who2 + IRC_DEFAULT + ".")
+            self.say_private(who2, "Cupid's arrow has struck you! Your lover is " + IRC_BOLD + who1 + IRC_DEFAULT + ".")
+            
+            #self.say_public("Cupid's arrows have struck! %s and %s are now lovers." % (who1, who2))
             
             if self.check_night_done():
               self.day()
@@ -1219,24 +1310,26 @@ class WolfBot(SingleServerIRCBot):
     self.live_players.remove(player)
     self.dead_players.append(player)
     self.fix_modes()
+    if self.nonvoters and player in self.nonvoters:
+      self.nonvoters.remove(player)
 
     if player in self.wolves:
-      id = "a " + IRC_BOLD + IRC_RED + "wolf" + IRC_BOLD + IRC_WHITE + "!"
+      id = "a " + IRC_BOLD + WOLF_COLOR + "wolf" + IRC_DEFAULT + "!"
       self.wolves.remove(player)
     elif player == self.seer:
-      id = "the " + IRC_BOLD + IRC_RED + "seer" + IRC_BOLD + IRC_WHITE + "!"
+      id = "the " + IRC_BOLD + SEER_COLOR + "seer" + IRC_DEFAULT + "!"
     elif player == self.mystic:
-      id = "the " + IRC_BOLD + IRC_RED + "mystic" + IRC_BOLD + IRC_WHITE + "!"
+      id = "the " + IRC_BOLD + MYSTIC_COLOR + "mystic" + IRC_DEFAULT + "!"
     elif player == self.angel:
-      id = "the " + IRC_BOLD + IRC_RED + "angel" + IRC_BOLD + IRC_WHITE + "!"
+      id = "the " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + "!"
     elif player == self.ninja:
-      id = "the " + IRC_BOLD + IRC_RED + "ninja" + IRC_BOLD + IRC_WHITE + "!"
+      id = "the " + IRC_BOLD + NINJA_COLOR + "ninja" + IRC_DEFAULT + "!"
     elif player == self.cupid:
-      id = "the " + IRC_BOLD + IRC_RED + "cupid" + IRC_BOLD + IRC_WHITE + "!"
+      id = "the " + IRC_BOLD + CUPID_COLOR + "cupid" + IRC_DEFAULT + "!"
     elif player == self.village_elder:
-      id = "the " + IRC_BOLD + IRC_RED + "village elder" + IRC_BOLD + IRC_WHITE + "!"
+      id = "the " + IRC_BOLD + ELDER_COLOR + "village elder" + IRC_DEFAULT + "!"
     elif player == self.watchman:
-      id = "the " + IRC_BOLD + IRC_RED + "watchman" + IRC_BOLD + IRC_WHITE + "!"
+      id = "the " + IRC_BOLD + WATCHMAN_COLOR + "watchman" + IRC_DEFAULT + "!"
     else:
       id = "a normal villager."
     
@@ -1246,7 +1339,7 @@ class WolfBot(SingleServerIRCBot):
       return 1
     else:
       self.say_public(("(%s is now dead, and should stay quiet.)") % player)
-      self.say_private(player, "You are now " + IRC_BOLD + IRC_RED + "dead" + IRC_BOLD + IRC_WHITE + ".  You may observe the game,")
+      self.say_private(player, "You are now " + IRC_BOLD + IRC_RED + "dead" + IRC_DEFAULT + ".  You may observe the game,")
       self.say_private(player, "but please stay quiet until the game is over.")
       
       if check_over:
@@ -1257,11 +1350,11 @@ class WolfBot(SingleServerIRCBot):
   
   def check_lovers(self, player, check = True):
     if self.lovers and (self.lovers[0] in self.live_players or self.lovers[1] in self.live_players):
-      if player is self.lovers[0]:
-        self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % self.lovers[0], self.lovers[1])
+      if player == self.lovers[0]:
+        self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % (self.lovers[1], self.lovers[0]))
         return self.kill_player(self.lovers[1], check)
-      elif player is lovers[1]:
-        self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % self.lovers[1], self.lovers[0])
+      elif player == self.lovers[1]:
+        self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % (self.lovers[0], self.lovers[1]))
         return self.kill_player(self.lovers[0], check)
     else: return 0
 
@@ -1304,16 +1397,16 @@ class WolfBot(SingleServerIRCBot):
         else:
           msg = msg + ("(%s : 1 vote) " % lynchee)
     else:
-      msg = "Nobody voted for whom to lynch this round. What the fuck is wrong with you all?"
+      msg = "Nobody voted for whom to lynch this round."
     self.say_public(msg)
 
 
   def print_alive(self):
     "Declare who's still alive."
-    msg = "The following players are still alive: %s"%', '.join(self.live_players)
+    msg = "The following players are " + IRC_AQUA + IRC_BOLD + "still alive" + IRC_DEFAULT + ": " + IRC_BOLD + "%s"%', '.join(self.live_players)
     self.say_public(msg)
     if self.dead_players:
-      msg = "The following players are dead : %s"%', '.join(self.dead_players)
+      msg = "The following players are " + IRC_RED + IRC_BOLD + "dead" + IRC_DEFAULT + ": " + IRC_BOLD + "%s"%', '.join(self.dead_players)
       self.say_public(msg)
 
 
@@ -1353,9 +1446,9 @@ class WolfBot(SingleServerIRCBot):
     else:
       if not secret:
         self.villager_votes[lyncher] = lynchee
-        self.say_public(("%s has voted to lynch %s!" % (lyncher, lynchee)))
+        self.say_public(lyncher + " has voted to lynch " + IRC_BOLD + lynchee + IRC_DEFAULT + "!")
         self.tally_votes()
-        if len(self.villager_votes) == self.live_players:
+        if len(self.villager_votes) == len(self.live_players):
           victims = self.check_for_votes()
           if not victims:
             self.print_tally()
@@ -1365,13 +1458,13 @@ class WolfBot(SingleServerIRCBot):
           else:
             victim = victims[random.randrange(len(victims))]
             
-          self.say_public(("The villagers have voted to lynch %s!! "
-                             "Mob violence ensues.  This player is now " + IRC_BOLD + IRC_RED + "dead" + IRC_BOLD + IRC_WHITE + "." % victim))
+            self.say_public("The villagers have voted to lynch " + IRC_BOLD + victim + IRC_BOLD + "!! "
+                             "Mob violence ensues.  This player is now " + IRC_RED + IRC_BOLD + "dead" + IRC_DEFAULT + ".")
           if not self.kill_player(victim):
           # Day is done;  flip bot back into night-mode.
             self.night()
       else:
-        self.say_public("The village elder has voted to lynch %s!" % lynchee)
+        self.say_public("The village elder has voted to lynch " + IRC_BOLD + lynchee + IRC_DEFAULT + "!")
         if self.tally.has_key(lynchee):
           self.tally[lynchee] += 1
         else:
@@ -1491,7 +1584,7 @@ class WolfBot(SingleServerIRCBot):
   
   def cmd_secretvote(self, args, e):
     target = nm_to_n(e.source())
-    if self.village_elder is None or self.village_elder not in live_players or target != self.village_elder:
+    if self.village_elder is None or self.village_elder not in self.live_players or target != self.village_elder:
       self.reply(e, "Huh?")
     if len(args) == 1:
       lynchee = self.match_name(args[0])
