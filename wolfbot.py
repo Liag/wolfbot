@@ -595,8 +595,8 @@ class WolfBot(SingleServerIRCBot):
 
   def say_private(self, nick, text):
     "Send private message of TEXT to NICK."
+    
     self.queue.send(IRC_DEFAULT + text,nick, True)
-
 
   def reply(self, e, text):
     "Send TEXT to public channel or as private msg, in reply to event E."
@@ -747,7 +747,7 @@ class WolfBot(SingleServerIRCBot):
           self.say_public(text)
         self.gamestate = self.GAMESTATE_RUNNING
 
-        self.fix_modes()
+        self.fix_modes(True)
         
         self.first_night = True
         # Start game by putting bot into "night" mode.
@@ -979,15 +979,13 @@ class WolfBot(SingleServerIRCBot):
     
     self.time = "night"
     if not self.first_night:
-      messages = []
       #Check if someone hasn't voted two days in a row
       if self.nonvoters:
         for voter in self.nonvoters:
           if voter not in self.villager_votes:
             self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row.")
             self.say_public(IRC_BOLD + voter + IRC_BOLD + " suffers a grim, mysterious death.")
-            self.kill_player(voter, False)
-      
+            self.kill_player(voter, False, False)
       
       if self.check_game_over():
         return
@@ -1001,6 +999,7 @@ class WolfBot(SingleServerIRCBot):
     self.tally = {}
 
     # Declare nighttime.
+    self.fix_modes(True)
     self.print_alive()
     for text in night_game_texts:
       self.say_public(text)
@@ -1045,8 +1044,6 @@ class WolfBot(SingleServerIRCBot):
                        ("The other werewolf is %s.  Confer privately."\
                         % self.wolves[0]))
     
-    
-    self.fix_modes(True)
     self.night_timer = time.time()
     # ... bot is now in 'night' mode;  goes back to doing nothing but
     # waiting for commands.
@@ -1305,13 +1302,13 @@ class WolfBot(SingleServerIRCBot):
         self.day()
 
 
-  def kill_player(self, player, check_over = True):
+  def kill_player(self, player, check_over = True, del_voter = True):
     "Make a player dead.  Return 1 if game is over, 0 otherwise."
 
     self.live_players.remove(player)
     self.dead_players.append(player)
     self.fix_modes()
-    if self.nonvoters and player in self.nonvoters:
+    if self.nonvoters and player in self.nonvoters and del_voter:
       self.nonvoters.remove(player)
 
     if player in self.wolves:
