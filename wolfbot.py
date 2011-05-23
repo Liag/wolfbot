@@ -61,7 +61,7 @@ WOLF_COLOR = IRC_RED
 SEER_COLOR = IRC_AQUA
 MYSTIC_COLOR = IRC_GREEN
 ANGEL_COLOR = IRC_SILVER
-NINJA_COLOR = IRC_PURPLE
+NINJA_COLOR = IRC_ROYAL
 CUPID_COLOR = IRC_PINK
 ELDER_COLOR = IRC_BROWN
 WATCHMAN_COLOR = IRC_LIME
@@ -797,43 +797,43 @@ class WolfBot(SingleServerIRCBot):
         seer_msg = IRC_UNDERLINE + self.seer
       else:
         seer_msg = self.seer
-      self.say_public("*** " + IRC_BOLD + SEER_COLOR + "Seer: " + IRC_DEFAULT + IRC_BOLD + seer_msg)
+      self.say_public("*** " + IRC_BOLD + SEER_COLOR + "Seer: " + IRC_BOLD + seer_msg)
     if self.mystic != None:
       if self.mystic in self.live_players:
         mystic_msg = IRC_UNDERLINE + self.mystic
       else:
         mystic_msg = self.mystic
-      self.say_public("*** " + IRC_BOLD + MYSTIC_COLOR + "Mystic: " + IRC_DEFAULT + IRC_BOLD + mystic_msg)
+      self.say_public("*** " + IRC_BOLD + MYSTIC_COLOR + "Mystic: " + IRC_BOLD + mystic_msg)
     if self.angel != None:
       if self.angel in self.live_players:
         angel_msg = IRC_UNDERLINE + self.angel
       else:
         angel_msg = self.angel
-      self.say_public("*** " + IRC_BOLD + ANGEL_COLOR + "Angel: " + IRC_DEFAULT + IRC_BOLD + angel_msg)
+      self.say_public("*** " + IRC_BOLD + ANGEL_COLOR + "Angel: " + IRC_BOLD + angel_msg)
     if self.ninja != None:
       if self.ninja in self.live_players:
         ninja_msg = IRC_UNDERLINE + self.ninja
       else:
         ninja_msg = self.ninja
-      self.say_public("*** " + IRC_BOLD + NINJA_COLOR + "Ninja: " + IRC_DEFAULT + IRC_BOLD + ninja_msg)
+      self.say_public("*** " + IRC_BOLD + NINJA_COLOR + "Ninja: " + IRC_BOLD + ninja_msg)
     if self.cupid != None:
       if self.cupid in self.live_players:
         cupid_msg = IRC_UNDERLINE + self.cupid
       else:
         cupid_msg = self.cupid
-      self.say_public("*** " + IRC_BOLD + CUPID_COLOR + "Cupid: " + IRC_DEFAULT + IRC_BOLD + cupid_msg)
+      self.say_public("*** " + IRC_BOLD + CUPID_COLOR + "Cupid: " + IRC_BOLD + cupid_msg)
     if self.village_elder != None:
       if self.village_elder in self.live_players:
         village_elder_msg = IRC_UNDERLINE + self.village_elder
       else:
         village_elder_msg = self.village_elder
-      self.say_public("*** " + IRC_BOLD + ELDER_COLOR + "Village elder: " + IRC_DEFAULT + IRC_BOLD + village_elder_msg)
+      self.say_public("*** " + IRC_BOLD + ELDER_COLOR + "Village elder: " + IRC_BOLD + village_elder_msg)
     if self.watchman != None:
       if self.watchman in self.live_players:
         watchman_msg = IRC_UNDERLINE + self.watchman
       else:
         watchman_msg = self.watchman
-      self.say_public("*** " + IRC_BOLD + WATCHMAN_COLOR + "Watchman: " + IRC_DEFAULT + IRC_BOLD + watchman_msg)
+      self.say_public("*** " + IRC_BOLD + WATCHMAN_COLOR + "Watchman: " + IRC_BOLD + watchman_msg)
     if self.lovers:
       lover_msg = []
       for i in range(self.lovers):
@@ -841,15 +841,15 @@ class WolfBot(SingleServerIRCBot):
           lover_msg.append(IRC_UNDERLINE + self.lovers[i])
         else:
           lover_msg.append(self.lovers[i])
-      self.say_public("*** " + IRC_BOLD + LOVERS_COLOR + "Lovers: " + IRC_DEFAULT + IRC_BOLD + lover_msg[0] + IRC_DEFAULT + " and " + IRC_BOLD + lover_msg[0])
+      self.say_public("*** " + IRC_BOLD + LOVERS_COLOR + "Lovers: " + IRC_BOLD + lover_msg[0] + IRC_DEFAULT + " and " + IRC_BOLD + LOVERS_COLOR + lover_msg[0])
     if self.villagers:
       if self.villagers[0] in self.live_players:
-        msg = "*** " + IRC_BOLD + "Villagers: " + IRC_UNDERLINE + self.villagers[0] + IRC_DEFAULT
+        msg = "*** " + IRC_BOLD + "Villagers: " + IRC_UNDERLINE + self.villagers[0] + IRC_DEFAULT + IRC_BOLD
       else:
         msg = "*** " + IRC_BOLD + "Villagers: " + self.villagers[0]
       for i in range(1, len(self.villagers)):
         if self.villagers[i] in self.live_players:
-          msg += ", " + IRC_UNDERLINE + self.villagers[i] + IRC_DEFAULT
+          msg += ", " + IRC_UNDERLINE + self.villagers[i] + IRC_DEFAULT + IRC_BOLD
         else:
           msg += ", " + self.villagers[i]
       self.say_public(msg)
@@ -990,6 +990,9 @@ class WolfBot(SingleServerIRCBot):
             self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row. They suffer a grim, mysterious death.")
             self.kill_player(voter, False, False)
       
+      for i in range(5):
+        self.ircobj.process_once(0.1)
+        
       if self.check_game_over():
         return
       del self.nonvoters[:]    
@@ -1481,7 +1484,7 @@ class WolfBot(SingleServerIRCBot):
     if self.gamestate == self.GAMESTATE_RUNNING:
       self.print_alive()
       if self.time == "day":
-        if int(time.time() - self.day_timer) < (DAY_LENGTH / 2):
+        if int(time.time() - self.day_timer) > (DAY_LENGTH / 2):
           self.tally_votes()
           self.print_tally(False)
     elif self.gamestate == self.GAMESTATE_STARTING:
