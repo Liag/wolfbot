@@ -213,8 +213,7 @@ morning_game_texts = \
 day_game_texts = \
 ["The villagers have all gathered to vote.",
 "You may now decide to lynch one player. If you do not vote two nights in a row, the powers of good will cast you down!",
- "When each player is ready, send me the command:  'vote <nickname>',",
- "and I will lynch the player who gets the most votes!",
+ "When each player is ready, send me the command:  'vote <nickname>', and I will lynch the player who gets the most votes!",
  "Remember: votes cannot be changed after you have voted."]
  
 day_elder_texts = \
@@ -609,7 +608,7 @@ class WolfBot(SingleServerIRCBot):
 
   def start_game(self, game_starter):
     "Initialize a werewolf game -- assign roles and notify all players."
-    chname, chobj = self.channels.items()[0]
+    #chname, chobj = self.channels.items()[0]
 
     if self.gamestate == self.GAMESTATE_RUNNING:
       self.say_public("A game started by %s is in progress; "
@@ -977,8 +976,6 @@ class WolfBot(SingleServerIRCBot):
 
   def night(self):
     "Declare a NIGHT episode of gameplay."
-
-    chname, chobj = self.channels.items()[0]
     
     self.time = "night"
     if not self.first_night:
@@ -987,13 +984,11 @@ class WolfBot(SingleServerIRCBot):
       if self.nonvoters:
         for voter in self.nonvoters:
           if voter not in self.villager_votes:
-            messages.append(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row.")
-            messages.append(IRC_BOLD + voter + IRC_BOLD + " suffers a grim, mysterious death.")
+            self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row.")
+            self.say_public(IRC_BOLD + voter + IRC_BOLD + " suffers a grim, mysterious death.")
             self.kill_player(voter, False)
       
-      for msg in messages:
-        self.say_public(msg)
-        
+      
       if self.check_game_over():
         return
       del self.nonvoters[:]    
@@ -1010,7 +1005,7 @@ class WolfBot(SingleServerIRCBot):
     for text in night_game_texts:
       self.say_public(text)
 
-    # Give private instructions to wolves and seer.
+    # Give private instructions to wolves and other roles.
     if self.seer is not None and self.seer in self.live_players:
       for text in night_seer_texts:
         self.say_private(self.seer, text)
@@ -1049,6 +1044,7 @@ class WolfBot(SingleServerIRCBot):
       self.say_private(self.wolves[1],\
                        ("The other werewolf is %s.  Confer privately."\
                         % self.wolves[0]))
+    
     
     self.fix_modes(True)
     self.night_timer = time.time()
@@ -1338,10 +1334,10 @@ class WolfBot(SingleServerIRCBot):
     else:
       id = "a normal villager."
     
-    self.say_public(\
-        ("*** Examining the body, you notice that this player was %s" % id))
-    if check_over and self.check_game_over():
-      return 1
+    self.say_public("*** Examining the body, you notice that this player was %s" % id)
+    if check_over:
+      if self.check_game_over():
+        return 1
     else:
       self.say_public(("(%s is now dead, and should stay quiet.)") % player)
       self.say_private(player, "You are now " + IRC_BOLD + IRC_RED + "dead" + IRC_DEFAULT + ".  You may observe the game,")

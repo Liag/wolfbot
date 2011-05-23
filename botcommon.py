@@ -28,7 +28,7 @@ class OutputManager(Thread):
           self.connection.privmsg(target, msg)
         #time.sleep(self.delay)
       self.event.clear()
-
+  
   def send(self, msg, target, private = False):
     self.queue.append((msg.strip(),target,private))
     self.event.set()
