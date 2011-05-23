@@ -73,7 +73,7 @@ url = "https://github.com/Liag/wolfbot"
 GAME_STARTER_TIMEOUT = 70 # In seconds
 DAY_LENGTH = 120 # Voting period is half this
 NIGHT_LENGTH = 60
-NIGHT_EXTRA = 30
+#NIGHT_EXTRA = 30
 MIN_USERS = 5
 WOLF_THRESHOLD_MULTI = 8 # How many players per wolf (max three wolves)
 END_DISABLED = 0 # If the game starter has access to the !end command
@@ -743,15 +743,15 @@ class WolfBot(SingleServerIRCBot):
 
         if self.debug:
           print "SEER: %s, WOLVES: %s" % (self.seer, self.wolves)
-
+        
         for text in new_game_texts:
           self.say_public(text)
+          
         self.gamestate = self.GAMESTATE_RUNNING
-
-        self.fix_modes(True)
         
         self.first_night = True
         # Start game by putting bot into "night" mode.
+        time.sleep(15)
         self.night()
 
 
@@ -925,10 +925,10 @@ class WolfBot(SingleServerIRCBot):
   def check_night_done(self, elapsed = 0):
     "Check if nighttime is over.  Return 1 if night is done, 0 otherwise."
 
-    if self.first_night:
-      if elapsed > (NIGHT_LENGTH + NIGHT_EXTRA):
-        return 1
-    elif elapsed > NIGHT_LENGTH:
+    #if self.first_night:
+      #if elapsed > NIGHT_LENGTH:
+        #return 1
+    if elapsed > NIGHT_LENGTH:
       return 1
     # Is the seer done seeing?
     if self.seer is None or self.seer not in self.live_players:
@@ -990,9 +990,8 @@ class WolfBot(SingleServerIRCBot):
             self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row. They suffer a grim, mysterious death.")
             self.kill_player(voter, False, False)
       
-      for i in range(5):
-        self.ircobj.process_once(0.1)
-        
+      self.sleep(3)
+      
       if self.check_game_over():
         return
       del self.nonvoters[:]    
