@@ -54,6 +54,7 @@ IRC_ROYAL = "\x0312"
 IRC_PINK = "\x0313"
 IRC_GREY = "\x0314"
 IRC_SILVER = "\x0315"
+IRC_DEFAULT = IRC_DEFAULT + IRC_PURPLE
 
 # Define role colours to be used throughout the text
 WOLF_COLOR = IRC_RED
@@ -591,11 +592,11 @@ class WolfBot(SingleServerIRCBot):
   def say_public(self, text):
     "Print TEXT into public channel, for all to see."
     
-    self.queue.send(text, self.channel)
+    self.queue.send(IRC_DEFAULT + text, self.channel, False)
 
   def say_private(self, nick, text):
     "Send private message of TEXT to NICK."
-    self.queue.send(text,nick)
+    self.queue.send(IRC_DEFAULT + text,nick, True)
 
 
   def reply(self, e, text):
@@ -981,14 +982,18 @@ class WolfBot(SingleServerIRCBot):
     
     self.time = "night"
     if not self.first_night:
+      messages = []
       #Check if someone hasn't voted two days in a row
       if self.nonvoters:
         for voter in self.nonvoters:
           if voter not in self.villager_votes:
-            self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row.")
-            self.say_public(IRC_BOLD + voter + IRC_BOLD + " suffers a grim, mysterious death.")
+            messages.append(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row.")
+            messages.append(IRC_BOLD + voter + IRC_BOLD + " suffers a grim, mysterious death.")
             self.kill_player(voter, False)
-             
+      
+      for msg in messages:
+        self.say_public(msg)
+        
       if self.check_game_over():
         return
       del self.nonvoters[:]    
@@ -1568,6 +1573,9 @@ class WolfBot(SingleServerIRCBot):
         self.assassinate(e, ass_target.strip())
         return
     self.reply(e, "Assassinate whom?")
+    
+  def cmd_ninja(self, args, e):
+    self.cmd_assassinate(args, e)
   
   def cmd_lovers(self, args, e):
     target = nm_to_n(e.source())

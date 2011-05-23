@@ -21,11 +21,14 @@ class OutputManager(Thread):
     while 1:
       self.event.wait()
       while self.queue:
-        msg,target = self.queue.pop(0)
-        self.connection.privmsg(target, msg)
+        msg,target,private = self.queue.pop(0)
+        if private:
+          self.connection.notice(target, msg)
+        else:
+          self.connection.privmsg(target, msg)
         #time.sleep(self.delay)
       self.event.clear()
 
-  def send(self, msg, target):
-    self.queue.append((msg.strip(),target))
+  def send(self, msg, target, private = False):
+    self.queue.append((msg.strip(),target,private))
     self.event.set()
