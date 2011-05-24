@@ -76,7 +76,7 @@ NIGHT_LENGTH = 60
 #NIGHT_EXTRA = 30
 MIN_USERS = 5
 WOLF_THRESHOLD_MULTI = 8 # How many players per wolf (max three wolves)
-END_DISABLED = 0 # If the game starter has access to the !end command
+END_DISABLED = 1 # If the game starter has access to the !end command
 
 # Chances for each role on first role roll in percent
 # Should add up to 100%
@@ -584,9 +584,13 @@ class WolfBot(SingleServerIRCBot):
     self.ninja_target = None
     self.wolf_target = None
     self.wolf_votes = {}
+    self.ninja_sleep = False
+    self.wolf_sleep = False
+    self.sleeping_wolves = []
     # Day round variables
     self.villager_votes = {}
     self.tally = {}
+
 
 
   def say_public(self, text):
@@ -949,7 +953,7 @@ class WolfBot(SingleServerIRCBot):
         mystic_done = 1
     
     # If ninja hasn't acted yet is ninja done assassinating
-    if self.ninja is None or self.ninja not in self.live_players or (self.ninja_target is not None and self.ninja_target not in self.live_players):
+    if self.ninja is None or self.ninja not in self.live_players or (self.ninja_target is not None and self.ninja_target not in self.live_players) or self.ninja_sleep:
       ninja_done = 1
     else:
       if self.ninja_target is None:
@@ -967,7 +971,7 @@ class WolfBot(SingleServerIRCBot):
         cupid_done = 0
     
 
-    if (self.wolf_target is not None) and seer_done and mystic_done and ninja_done and cupid_done:
+    if (self.wolf_target is not None or self.wolf_sleep) and seer_done and mystic_done and ninja_done and cupid_done:
       return 1
     else:
       return 0
@@ -990,7 +994,7 @@ class WolfBot(SingleServerIRCBot):
             self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row. They suffer a grim, mysterious death.")
             self.kill_player(voter, False, False)
       
-      self.sleep(3)
+      time.sleep(3)
       
       if self.check_game_over():
         return
@@ -1019,7 +1023,7 @@ class WolfBot(SingleServerIRCBot):
     if self.angel is not None and self.angel in self.live_players:
       for text in night_angel_texts:
         self.say_private(self.angel, text)
-    if self.ninja is not None and self.ninja in self.live_players and self.ninja_target is not None:
+    if self.ninja is not None and self.ninja in self.live_players and self.ninja_target is None:
       for text in night_ninja_texts:
         self.say_private(self.ninja, text)
     if self.cupid is not None and self.cupid in self.live_players and self.first_night:
@@ -1124,6 +1128,9 @@ class WolfBot(SingleServerIRCBot):
     self.mystic_target = None
     self.wolf_target = None
     self.wolf_votes = {}
+    self.ninja_sleep = False
+    self.wolf_sleep = False
+    self.sleeping_wolves = []
 
     # Give daytime instructions.
     self.print_alive()
@@ -1138,7 +1145,53 @@ class WolfBot(SingleServerIRCBot):
     # ... bot is now in 'day' mode;  goes back to doing nothing but
     # waiting for commands.
 
-
+  def sleep(self, e):
+    "Allow ninjas and seers to sleep."
+    
+    if self.gamestate != self.GAMESTATE_RUNNING:
+      self.reply(e, "No game is in progress.")
+      return
+    
+    if self.time != "night":
+      self.reply(e, "You can only sleep during the night.")
+    
+    who = nm_to_n(e.source()).strip("&")
+    
+    if who != self.ninja or who not in self.wolves:
+      "Don't fall asleep."
+    
+    if who == self.ninja:
+      if self.ninja_sleep or self.ninja_target is not None:
+        self.reply(e, "You're already fast asleep. What else would you be doing in the middle of the night?")
+      else:
+        self.ninja_sleep = True
+        self.reply(e, "You decide to save your skills for another night.")
+        
+        if self.check_night_done():
+          self.day()
+    elif who in self.wolves:
+      if who in self.wolf_votes:
+        self.reply(e, "You've already acted tonight.")
+      elif self.wolf_sleep or who in self.sleeping_wolves:
+        self.reply(e, "You're already fast asleep. You're not some kind of freak who stays up all night.")
+      else:
+        self.sleeping_wolves.append(who)
+        
+        self.reply(e, "You decide to not give in to your hunger, for tonight at least.")
+        
+        if len(self.sleeping_wolves) == len(self.wolves):
+          self.wolf_sleep = True
+          if self.check_night_done():
+            self.day()
+        elif len(self.wolf_votes) == (len(self.wolves) - len(self.sleeping_wolves)):
+          target = self.wolf_votes[self.wolf_votes.keys()[0]]
+          for killee in self.wolf_votes.values():
+            if target != killee:
+              break
+            else:
+              self.wolf_target = target
+              if self.check_night_done():
+                self.day()
 
   def see(self, e, who):
     "Allow a seer to 'see' somebody."
@@ -1179,7 +1232,7 @@ class WolfBot(SingleServerIRCBot):
     if self.time != "night":
       self.reply(e, "Are you a mystic? In any case, it's not nighttime.")
     else:
-      if self.mystic is None or nm_to_n(e.source()) != self.mystic:
+      if self.mystic is None or nm_to_n(e.source()).strip("&") != self.mystic:
         self.reply(e, "Huh?")
       else:
         if who not in self.live_players:
@@ -1210,7 +1263,7 @@ class WolfBot(SingleServerIRCBot):
     if self.time != "night":
       self.reply(e, "Are you a ninja?  In any case, it's not nighttime.")
     else:
-      if self.ninja is None or nm_to_n(e.source()) != self.ninja:
+      if self.ninja is None or nm_to_n(e.source()).strip("&") != self.ninja:
         self.reply(e, "Huh?")
       else:
         if who not in self.live_players:
@@ -1236,7 +1289,7 @@ class WolfBot(SingleServerIRCBot):
     if self.time != "night":
       self.reply(e, "Are you a cupid? In any case, it's not nighttime.")
     else:
-      if self.cupid is None or nm_to_n(e.source()) != self.cupid:
+      if self.cupid is None or nm_to_n(e.source()).strip("&") != self.cupid:
         self.reply(e, "Huh?")
       else:
         if who1 not in self.live_players or who2 not in self.live_players:
@@ -1278,13 +1331,19 @@ class WolfBot(SingleServerIRCBot):
     if who not in self.live_players:
       self.reply(e, "That player either doesn't exist, or is dead.")
       return
-    if len(self.wolves) > 1:
+    
+    wolf = nm_to_n(e.source()).strip("&")
+    if self.wolf_sleep or wolf in self.sleeping_wolves:
+      self.reply(e, "Go back to bed!")
+      return
+      
+    if (len(self.wolves) - len(self.sleeping_wolves)) > 1:
       # Multiple wolves are alive:
-      self.wolf_votes[nm_to_n(e.source())] = who
+      self.wolf_votes[wolf] = who
       self.reply(e, "Your vote is acknowledged.")
 
       # If all wolves have voted, look for agreement:
-      if len(self.wolf_votes) == len(self.wolves):
+      if len(self.wolf_votes) == (len(self.wolves) + len(self.sleeping_wolves)):
         for killee in self.wolf_votes.values():
           if who != killee:
             break
@@ -1620,6 +1679,9 @@ class WolfBot(SingleServerIRCBot):
   
   def cmd_v(self, args, e):
     self.cmd_vote(args, e)
+  
+  def cmd_sleep(self, args, e):
+    self.sleep(e)
 
   def cmd_join(self, args, e):
     if self.gamestate == self.GAMESTATE_NONE:
