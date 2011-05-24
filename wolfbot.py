@@ -992,8 +992,7 @@ class WolfBot(SingleServerIRCBot):
           if voter not in self.villager_votes:
             self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row. They suffer a grim, mysterious death.")
             self.kill_player(voter, False, False)
-      
-      time.sleep(3)
+        time.sleep(3)
       
       if self.check_game_over():
         return
@@ -1051,6 +1050,8 @@ class WolfBot(SingleServerIRCBot):
       self.say_private(self.wolves[1],\
                        ("The other werewolf is %s.  Confer privately."\
                         % self.wolves[0]))
+    
+    time.sleep(5)
     
     self.night_timer = time.time()
     # ... bot is now in 'night' mode;  goes back to doing nothing but
