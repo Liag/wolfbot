@@ -117,43 +117,42 @@ new_game_texts = \
 # Printed when informing players of their initial roles:
 
 wolf_intro_text = \
-"You are a " + IRC_BOLD + WOLF_COLOR + "werewolf" + IRC_DEFAULT + ".  You want to kill everyone while they sleep. \
-Whatever happens, keep your identity secret.  Act natural!"
+"You are a " + IRC_BOLD + WOLF_COLOR + "werewolf" + IRC_DEFAULT + "! Your goal is to eliminate all opposing players, \
+but you can only kill one person per night.  Act natural, no pressure or anything!"
 
 seer_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + SEER_COLOR + "seer" + IRC_DEFAULT + ".  Later on, you'll get chances to \
-learn whether someone is or isn't a werewolf.  Keep your identity \
-secret, or the werewolves may kill you!"
+"You are the " + IRC_BOLD + SEER_COLOR + "seer" + IRC_DEFAULT + "!  Your power allows you to determine \
+the identity of any one player each night. Use your power wisely."
 
 mystic_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + MYSTIC_COLOR + "mystic" + IRC_DEFAULT + ".  Later on, you'll get chances to \
-protect someone from harm using your powers. Keep your identity \
-secret, or the werewolves may kill you!"
+"You are the " + IRC_BOLD + MYSTIC_COLOR + "mystic" + IRC_DEFAULT + "!  You have the power to protect one person \
+from harm every night, but you may not use your power on the same person two nights in a row."
 
 angel_intro_text = \
-"You're a villager, but also an " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + ".  You are immune against the wolves' attacks!"
+"You are the " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + ", you are safe from the wolves attack during the night! \
+Be wary of a lynch the following day, not everyone believes in angels..."
 
 ninja_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + NINJA_COLOR + "ninja" + IRC_DEFAULT + ".  You have a single chance to \
-assassinate someone during the course of the game. Keep your identity \
-secret, or the werewolves may kill you!"
+"You are the " + IRC_BOLD + NINJA_COLOR + "ninja" + IRC_DEFAULT + "!  Being a highly skilled assassin grants you \
+the ability to kill one person during the night! \
+Remember, you only get one use per game, so pick your target wisely."
 
 cupid_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + CUPID_COLOR + "cupid" + IRC_DEFAULT + ".  During the first night, you can \
-make two people fall in love with each other. Choose wisely!"
+"You are the " + IRC_BOLD + CUPID_COLOR + "cupid" + IRC_DEFAULT + "!  During the first night, you can \
+choose to make two people fall in love with each other. Pick wisely, and remember, you only get one shot at it!"
 
 elder_intro_text = \
-"You're a villager, but also the revered " + IRC_BOLD + ELDER_COLOR + "village elder" + IRC_DEFAULT + ".  During the  \
-days, you can vote twice, once with a secret vote. Keep your identity \
-secret, or the werewolves may kill you!"
+"You are the revered " + IRC_BOLD + ELDER_COLOR + "village elder" + IRC_DEFAULT + "!  Due to your position \
+in the village as a respected individual, your voice carries more weight. Each day you may cast an anonymous vote \
+in addition to your normal vote as a villager. You are a wise man, try to act like it."
 
 watchman_intro_text = \
-"You're a villager, but also a " + IRC_BOLD + WATCHMAN_COLOR + "watchman" + IRC_DEFAULT + ".  Later on, you will be notified \
-of what has transpired if nobody died during the night. Keep your identity \
-secret, or the werewolves may kill you!"
+"You are the " + IRC_BOLD + WATCHMAN_COLOR + "watchman" + IRC_DEFAULT + ".  Should there be an attempt on someone's life \
+during the night, you will be notified if they fail. If it succeeds, the grim truth will be revealed in the morning \
+even without your vigilant watch."
 
 villager_intro_text = \
-"You're an ordinary villager."
+"You are a " + IRC_BOLD + "villager" + IRC_DEFAULT + ". Your job is to find werewolves and lynch them!"
 
 
 # Printed when night begins:
