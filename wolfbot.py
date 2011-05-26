@@ -129,7 +129,7 @@ mystic_intro_text = \
 from harm every night, but you may not use your power on the same person two nights in a row."
 
 angel_intro_text = \
-"You are the " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + ", you are safe from the wolves attack during the night! \
+"You are the " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + ", you are safe from the wolves' attack during the night! \
 Be wary of a lynch the following day, not everyone believes in angels..."
 
 ninja_intro_text = \
@@ -184,7 +184,7 @@ night_angel_texts = \
 night_ninja_texts = \
 ["As the others are asleep, you have a single chance to sneak in and assassinate someone.",
  "Please type 'assassinate <nickname>' (as a private message to me)\
-  to carry this out.",
+  to carry this out or 'sleep' to save your abilities for another night.",
  "But remember: you can only use this power once per game."]
 
 night_cupid_texts = \
@@ -201,7 +201,7 @@ night_watchman_texts = \
 night_werewolf_texts = \
 ["As the villagers sleep, you must now decide whom you want to kill.",
  "You and the other werewolves (if there are any and they are alive) should discuss (privately) and choose a victim.",
- "Please type 'kill <nickname>' (as a private message to me)."]
+ "Please type 'kill <nickname>' (as a private message to me) or 'sleep' to sleep through the night instead."]
 
 
 # Printed when day begins.
