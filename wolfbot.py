@@ -180,7 +180,7 @@ night_angel_texts = \
  
 night_ninja_texts = \
 ["You can now choose a target to assassinate, but remember you can only do this once per game!\
-To pick a target, type \"/msg %%botname%% assassinate <nickname>\" before the night is over"]
+To pick a target, type \"/msg %%botname%% " + IRC_BOLD + "assassinate" + IRC_DEFAULT + " <nickname>\" before the night is over"]
 
 night_cupid_texts = \
 ["Now is your chance to pick a pair of lovers! You can use this power ONLY THIS NIGHT\
@@ -200,9 +200,9 @@ morning_game_texts = \
 ["You now have 60 seconds to discuss and cast suspicions."]
   
 day_game_texts = \
-["You have 60 seconds to cast your vote. If you do not vote two nights in a row, the powers of good will cast you down!",
- "When you are ready, say "!vote <nickname>" to cast your vote.",
- "All votes are final, majority vote gets the lynch. Choose wisely!"]
+[IRC_RED + "You have 60 seconds to cast your vote, type "!vote <nickname>" when you are ready." + IRC_DEFAULT + "\
+If you do not vote two nights in a row, the powers of good will cast you down!",
+"All votes are final, majority vote gets the lynch. Choose wisely!"]
  
 day_elder_texts = \
 ["As the village elder, you have a secret vote at your disposal.\
