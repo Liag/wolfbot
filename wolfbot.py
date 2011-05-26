@@ -102,17 +102,21 @@ WATCHMAN_CHANCE = 100"""
 
 # Printed when a game first starts:
 
+#new_game_texts = \
+#["This is a game of paranoia and psychological intrigue.  Everyone\
+# in this group appears to be a common villager, but several of\
+# you are 'special'.  One or more of you are actually evil werewolves, seeking\
+# to kill everyone while concealing your identity.",#
+#
+# "Depending on the number of players, there are also additional villager roles\
+# like the seer and the mystic.",#
+#
+# "As a community, your group objective is to weed out the werewolves\
+# and lynch them before you're all killed in your sleep."]
+#
 new_game_texts = \
-["This is a game of paranoia and psychological intrigue.  Everyone\
- in this group appears to be a common villager, but several of\
- you are 'special'.  One or more of you are actually evil werewolves, seeking\
- to kill everyone while concealing your identity.",
-
- "Depending on the number of players, there are also additional villager roles\
- like the seer and the mystic.",
-
- "As a community, your group objective is to weed out the werewolves\
- and lynch them before you're all killed in your sleep."]
+["You have rounded up " + IRC_BOLD + %%numPlayers%% + IRC_DEFAULT + " players for the hunt!\
+Please stand by, assigning roles and starting the game..."]
 
 # Printed when informing players of their initial roles:
 
@@ -158,67 +162,51 @@ villager_intro_text = \
 # Printed when night begins:
 
 night_game_texts = \
-["Darkness falls: it is " + IRC_BOLD + IRC_PURPLE + "night" + IRC_DEFAULT + ".",
- "The village enters a restless slumber, each inhabitant fearing that they are next...",
- "Who knows what horrors the dark will bring?"]
+["The moon rises over the village: it is now " + IRC_BOLD + IRC_PURPLE + "night" + IRC_DEFAULT + ".",
+ "Each villager retreats to their home, preparing for a restless night."]
 
-# Printed when wolves and villager get nighttime instructions:
+# Printed when wolves and villagers get instructions at night:
 
 night_seer_texts = \
-["In your dreams, you have the ability to see whether a certain person\
-  is or is not a werewolf.",
-
- "You can use this power now: please type 'see <nickname>' (as a\
- private message to me) to learn about one living player's true\
- identity."]
+["You may now use your power to see the true identity of one person.\
+Please type \"/msg %%botname%% " + IRC_BOLD + "see" + IRC_DEFAULT + " <nickname>\" to use your power."]
  
 night_mystic_texts = \
-["With you bullshit powers, you have the ability to guard someone\
- against the werewolves, including yourself.",
- "Please type 'guard <nickname>' (as a private message to me)\
- to protect this person."]
+["You may now use your power to guard one person from the claws of the wolves.\
+Please type \"/msg %%botname%% " + IRC_BOLD + "guard" + IRC_DEFAULT + " <nickname>\" to use your power."]
 
 night_angel_texts = \
-["You are immune to the wolves' attacks! You can rest easy tonight. Just beware of being lynched tomorrow..."]
+["You are immune from the wolves attacks. Sit tight, and try not to get lynched tomorrow."]
  
 night_ninja_texts = \
-["As the others are asleep, you have a single chance to sneak in and assassinate someone.",
- "Please type 'assassinate <nickname>' (as a private message to me)\
-  to carry this out.",
- "But remember: you can only use this power once per game."]
+["You can now choose a target to assassinate, but remember you can only do this once per game!\
+To pick a target, type \"/msg %%botname%% assassinate <nickname>\" before the night is over"]
 
 night_cupid_texts = \
-["As it is the first night, you have the power to make two people fall \
- in love with each other.",
- "Please type 'lovers <nickname1> <nickname2>' (as a private message to me)\
-  to fire your arrows.",
- "Remember that this is your only chance! If you do not act now, your \
-  powers will still be forfeit for the rest of the game."]
+["Now is your chance to pick a pair of lovers! You can use this power ONLY THIS NIGHT\
+Please type \"/msg %%botname%% " + IRC_BOLD + "lovers" + IRC_DEFAULT + " <nickname1> <nickname2>\" now, or forever alone they shall be."]
 
 night_watchman_texts = \
 ["As the watchman, you keep a firm vigil on the villagers. If a failed attack takes place in the night, you are sure to see the signs."]
 
 night_werewolf_texts = \
-["As the villagers sleep, you must now decide whom you want to kill.",
- "You and the other werewolves (if there are any and they are alive) should discuss (privately) and choose a victim.",
- "Please type 'kill <nickname>' (as a private message to me)."]
+["Now is the time to strike! You and any other werewolves must come to a consensus on who to kill.\
+Please type \"/msg %%botname%% " + IRC_BOLD + "kill" + IRC_DEFAULT + " <nickname>\" once you have decided."]
 
 
 # Printed when day begins.
 
 morning_game_texts = \
-["Paranoia runs through the village!  Who is a werewolf in disguise?",
- "The villagers will gather to vote upon this matter in a short while."]
+["You now have 60 seconds to discuss and cast suspicions."]
   
 day_game_texts = \
-["The villagers have all gathered to vote.",
-"You may now decide to lynch one player. If you do not vote two nights in a row, the powers of good will cast you down!",
- "When each player is ready, send me the command:  'vote <nickname>', and I will lynch the player who gets the most votes!",
- "Remember: votes cannot be changed after you have voted."]
+["You have 60 seconds to cast your vote. If you do not vote two nights in a row, the powers of good will cast you down!",
+ "When you are ready, say "!vote <nickname>" to cast your vote.",
+ "All votes are final, majority vote gets the lynch. Choose wisely!"]
  
 day_elder_texts = \
-["As the village elder, you have a secret vote at your disposal each voting session.",
- "Please type 'secretvote <nickname>' (as a private message to me) to use this extra vote."]
+["As the village elder, you have a secret vote at your disposal.\
+Please type \"/msg %%botname%% secretvote <nickname>\" to use your anonymous vote."]
 
 
 
