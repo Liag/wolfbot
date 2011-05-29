@@ -97,121 +97,6 @@ WATCHMAN_CHANCE = 100"""
 
 
 #---------------------------------------------------------------------
-# General texts for narrating the game.  Change these global strings
-# however you wish, without having to muck with the core logic!
-
-# Printed when a game first starts:
-
-#new_game_texts = \
-#["This is a game of paranoia and psychological intrigue.  Everyone\
-# in this group appears to be a common villager, but several of\
-# you are 'special'.  One or more of you are actually evil werewolves, seeking\
-# to kill everyone while concealing your identity.",#
-#
-# "Depending on the number of players, there are also additional villager roles\
-# like the seer and the mystic.",#
-#
-# "As a community, your group objective is to weed out the werewolves\
-# and lynch them before you're all killed in your sleep."]
-#
-new_game_texts = \
-["You have rounded up " + IRC_BOLD + %%numPlayers%% + IRC_DEFAULT + " players for the hunt!\
-Please stand by, assigning roles and starting the game..."]
-
-# Printed when informing players of their initial roles:
-
-wolf_intro_text = \
-"You are a " + IRC_BOLD + WOLF_COLOR + "werewolf" + IRC_DEFAULT + "! Your goal is to eliminate all opposing players, \
-but you can only kill one person per night.  Act natural, no pressure or anything!"
-
-seer_intro_text = \
-"You are the " + IRC_BOLD + SEER_COLOR + "seer" + IRC_DEFAULT + "!  Your power allows you to determine \
-the identity of any one player each night. Use your power wisely."
-
-mystic_intro_text = \
-"You are the " + IRC_BOLD + MYSTIC_COLOR + "mystic" + IRC_DEFAULT + "!  You have the power to protect one person \
-from harm every night, but you may not use your power on the same person two nights in a row."
-
-angel_intro_text = \
-"You are the " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + ", you are safe from the wolves' attack during the night! \
-Be wary of a lynch the following day, not everyone believes in angels..."
-
-ninja_intro_text = \
-"You are the " + IRC_BOLD + NINJA_COLOR + "ninja" + IRC_DEFAULT + "!  Being a highly skilled assassin grants you \
-the ability to kill one person during the night! \
-Remember, you only get one use per game, so pick your target wisely."
-
-cupid_intro_text = \
-"You are the " + IRC_BOLD + CUPID_COLOR + "cupid" + IRC_DEFAULT + "!  During the first night, you can \
-choose to make two people fall in love with each other. Pick wisely, and remember, you only get one shot at it!"
-
-elder_intro_text = \
-"You are the revered " + IRC_BOLD + ELDER_COLOR + "village elder" + IRC_DEFAULT + "!  Due to your position \
-in the village as a respected individual, your voice carries more weight. Each day you may cast an anonymous vote \
-in addition to your normal vote as a villager. You are a wise man, try to act like it."
-
-watchman_intro_text = \
-"You are the " + IRC_BOLD + WATCHMAN_COLOR + "watchman" + IRC_DEFAULT + ".  Should there be an attempt on someone's life \
-during the night, you will be notified if they fail. If it succeeds, the grim truth will be revealed in the morning \
-even without your vigilant watch."
-
-villager_intro_text = \
-"You are a " + IRC_BOLD + "villager" + IRC_DEFAULT + ". Your job is to find werewolves and lynch them!"
-
-
-# Printed when night begins:
-
-night_game_texts = \
-["The moon rises over the village: it is now " + IRC_BOLD + IRC_PURPLE + "night" + IRC_DEFAULT + ".",
- "Each villager retreats to their home, preparing for a restless night."]
-
-# Printed when wolves and villagers get instructions at night:
-
-night_seer_texts = \
-["You may now use your power to see the true identity of one person.\
-Please type \"/msg %%botname%% " + IRC_BOLD + "see" + IRC_DEFAULT + " <nickname>\" to use your power."]
- 
-night_mystic_texts = \
-["You may now use your power to guard one person from the claws of the wolves.\
-Please type \"/msg %%botname%% " + IRC_BOLD + "guard" + IRC_DEFAULT + " <nickname>\" to use your power."]
-
-night_angel_texts = \
-["You are immune from the wolves attacks. Sit tight, and try not to get lynched tomorrow."]
- 
-night_ninja_texts = \
-["You can now choose a target to assassinate, but remember you can only do this once per game!\
-To pick a target, type \"/msg %%botname%% " + IRC_BOLD + "assassinate" + IRC_DEFAULT + " <nickname>\" before the night is over"]
-
-night_cupid_texts = \
-["Now is your chance to pick a pair of lovers! You can use this power ONLY THIS NIGHT\
-Please type \"/msg %%botname%% " + IRC_BOLD + "lovers" + IRC_DEFAULT + " <nickname1> <nickname2>\" now, or forever alone they shall be."]
-
-night_watchman_texts = \
-["As the watchman, you keep a firm vigil on the villagers. If a failed attack takes place in the night, you are sure to see the signs."]
-
-night_werewolf_texts = \
-["Now is the time to strike! You and any other werewolves must come to a consensus on who to kill.\
-Please type \"/msg %%botname%% " + IRC_BOLD + "kill" + IRC_DEFAULT + " <nickname>\" once you have decided."]
-
-
-# Printed when day begins.
-
-morning_game_texts = \
-["You now have 60 seconds to discuss and cast suspicions."]
-  
-day_game_texts = \
-[IRC_RED + "You have 60 seconds to cast your vote, type "!vote <nickname>" when you are ready." + IRC_DEFAULT + "\
-If you do not vote two nights in a row, the powers of good will cast you down!",
-"All votes are final, majority vote gets the lynch. Choose wisely!"]
- 
-day_elder_texts = \
-["As the village elder, you have a secret vote at your disposal.\
-Please type \"/msg %%botname%% secretvote <nickname>\" to use your anonymous vote."]
-
-
-
-
-#---------------------------------------------------------------------
 # Actual code.
 #
 # WolfBot subclasses a basic 'bot' class, which subclasses a basic
@@ -277,6 +162,88 @@ class WolfBot(SingleServerIRCBot):
             e.arguments())
     SingleServerIRCBot._dispatcher(self, c, e)
   
+  def defineTexts(self):
+    
+    self.new_game_text = \
+    "You have rounded up " + IRC_BOLD + str(len(self.live_players)) + IRC_DEFAULT + " players for the hunt! Please stand by, assigning roles and starting the game..."
+
+    # Printed when informing players of their initial roles:
+
+    self.wolf_intro_text = \
+    "You are a " + IRC_BOLD + WOLF_COLOR + "werewolf" + IRC_DEFAULT + "! Your goal is to eliminate all opposing players, but you can only kill one person per night.  Act natural, no pressure or anything!"
+
+    self.seer_intro_text = \
+    "You are the " + IRC_BOLD + SEER_COLOR + "seer" + IRC_DEFAULT + "!  Your power allows you to determine the identity of any one player each night. Use your power wisely."
+
+    self.mystic_intro_text = \
+    "You are the " + IRC_BOLD + MYSTIC_COLOR + "mystic" + IRC_DEFAULT + "!  You have the power to protect one person from harm every night, but you may not use your power on the same person two nights in a row."
+
+    self.angel_intro_text = \
+    "You are the " + IRC_BOLD + ANGEL_COLOR + "angel" + IRC_DEFAULT + ", you are safe from the wolves' attack during the night! Be wary of a lynch the following day, not everyone believes in angels..."
+
+    self.ninja_intro_text = \
+    "You are the " + IRC_BOLD + NINJA_COLOR + "ninja" + IRC_DEFAULT + "!  Being a highly skilled assassin grants you the ability to kill one person during the night! Remember, you only get one use per game, so pick your target wisely."
+
+    self.cupid_intro_text = \
+    "You are the " + IRC_BOLD + CUPID_COLOR + "cupid" + IRC_DEFAULT + "!  During the first night, you can choose to make two people fall in love with each other. Pick wisely, and remember, you only get one shot at it!"
+
+    self.elder_intro_text = \
+    "You are the revered " + IRC_BOLD + ELDER_COLOR + "village elder" + IRC_DEFAULT + "!  Due to your position " + \
+    "in the village as a respected individual, your voice carries more weight. Each day you may cast an anonymous vote " + \
+    "in addition to your normal vote as a villager. You are a wise man, try to act like it."
+
+    self.watchman_intro_text = \
+    "You are the " + IRC_BOLD + WATCHMAN_COLOR + "watchman" + IRC_DEFAULT + ".  Should there be an attempt on someone's life " + \
+    "during the night, you will be notified if they fail. If it succeeds, the grim truth will be revealed in the morning" + \
+    "even without your vigilant watch."
+
+    self.villager_intro_text = \
+    "You are a " + IRC_BOLD + "villager" + IRC_DEFAULT + ". Your job is to find werewolves and lynch them!"
+
+
+    # Printed when night begins:
+
+    self.night_game_texts = \
+    ["The moon rises over the village: it is now " + IRC_BOLD + IRC_PURPLE + "night" + IRC_DEFAULT + ".",
+    "Each villager retreats to their home, preparing for a restless night."]
+
+    # Printed when wolves and villagers get instructions at night:
+
+    self.night_seer_text = \
+    "You may now use your power to see the true identity of one person. Please type \"/msg " + self.nickname + " " + IRC_BOLD + "see" + IRC_DEFAULT + " <nickname>\" to use your power."
+ 
+    self.night_mystic_text = \
+    "You may now use your power to guard one person from the claws of the wolves. Please type \"/msg " + self.nickname + " " + IRC_BOLD + "guard" + IRC_DEFAULT + " <nickname>\" to use your power."
+
+    self.night_angel_text = \
+    "You are immune from the wolves attacks. Sit tight, and try not to get lynched tomorrow."
+ 
+    self.night_ninja_text = \
+    "You can now choose a target to assassinate, but remember you can only do this once per game! To pick a target, type \"/msg " + self.nickname + " " + IRC_BOLD + "assassinate" + IRC_DEFAULT + " <nickname>\" before the night is over"
+
+    self.night_cupid_text = \
+    "Now is your chance to pick a pair of lovers! You can use this power ONLY THIS NIGHT. Please type \"/msg " + self.nickname + " " + IRC_BOLD + "lovers" + IRC_DEFAULT + " <nickname1> <nickname2>\" now, or forever alone they shall be."
+
+    self.night_watchman_text = \
+    "As the watchman, you keep a firm vigil on the villagers. If a failed attack takes place in the night, you are sure to see the signs."
+
+    self.night_werewolf_text = \
+    "Now is the time to strike! You and any other werewolves must come to a consensus on who to kill. Please type \"/msg " + self.nickname + " " + IRC_BOLD + "kill" + IRC_DEFAULT + " <nickname>\" once you have decided."
+
+    # Printed when day begins.
+
+    self.morning_game_texts = \
+    [IRC_YELLOW + "Day" + IRC_DEFAULT + " breaks!  Sunlight pierces the sky.",
+    "You now have 60 seconds to discuss and cast suspicions."]
+  
+    self.day_game_texts = \
+    [IRC_RED + "You have 60 seconds to cast your vote, type \"!vote <nickname>\" when you are ready." + IRC_DEFAULT + " If you do not vote two nights in a row, the powers of good will cast you down!",
+    "All votes are final, majority vote gets the lynch. Choose wisely!"]
+ 
+    self.day_elder_text = \
+    "As the village elder, you have a secret vote at your disposal. Please type \"/msg " + self.nickname + " secretvote <nickname>\" to use your anonymous vote."
+    
+  
   def process_timers(self):
     #Process all existing timers and check if their functions need to executed
     
@@ -291,7 +258,7 @@ class WolfBot(SingleServerIRCBot):
             self.say_public("Anyone can now start the game with !start")
             
           #print "elapsed: " + str(elapsed) + ", elapsed mod 10: " + str(elapsed % 10)
-          if elapsed % 10 == 0:
+          if elapsed % 20 == 0:
             players = self.game_starter
             for player in self.live_players:
               if player is not self.game_starter:
@@ -326,7 +293,7 @@ class WolfBot(SingleServerIRCBot):
             # Day is done;  flip bot back into night-mode.
               self.night()
           elif elapsed == DAY_LENGTH / 2:
-            for text in day_game_texts:
+            for text in self.day_game_texts:
               self.say_public(text)
           self.old_elapsed = elapsed
             
@@ -633,10 +600,11 @@ class WolfBot(SingleServerIRCBot):
           % (len(self.live_players), self.live_players)))
 
       else:
-        # Randomly select an appropriate amount of wolves and special roles.  Everyone else is a villager.
         users = self.live_players[:]
-        self.say_public("A new game has begun! Please wait, assigning roles...")
-        #Set number of village roles based on amount of players
+        
+        self.defineTexts()
+        self.say_public(self.new_game_text)
+        # Set number of village roles based on amount of players
         if len(users) < 6: 
           roles = 1
         elif len(users) < 7:
@@ -651,7 +619,8 @@ class WolfBot(SingleServerIRCBot):
           roles = 6
         else:
           roles = 7
-        
+          
+        # Randomly select an appropriate amount of wolves and special roles.  Everyone else is a villager.
         self.wolves.append(users.pop(random.randrange(len(users))))
 		
         if len(self.live_players) > WOLF_THRESHOLD_MULTI:
@@ -659,9 +628,9 @@ class WolfBot(SingleServerIRCBot):
 		  
           if len(self.live_players) > (WOLF_THRESHOLD_MULTI * 2):
             self.wolves.append(users.pop(random.randrange(len(users))))
-            self.say_public("There are %s or more players so there are three werewolves." %((WOLF_THRESHOLD_MULTI * 2) + 1))
+            self.say_public("There are %s or more players, so there are three werewolves." %((WOLF_THRESHOLD_MULTI * 2) + 1))
           else:
-            self.say_public("There are %s or more players so there are two werewolves." %(WOLF_THRESHOLD_MULTI + 1))
+            self.say_public("There are %s or more players, so there are two werewolves." %(WOLF_THRESHOLD_MULTI + 1))
         else:
           self.say_public("There are less than %s players, so there is only one werewolf." %(WOLF_THRESHOLD_MULTI + 1))
 			
@@ -713,36 +682,33 @@ class WolfBot(SingleServerIRCBot):
 
         # Private message each user, tell them their role.
         if self.seer != None:
-          self.say_private(self.seer, seer_intro_text)
+          self.say_private(self.seer, self.seer_intro_text)
         if self.mystic != None:
-          self.say_private(self.mystic, mystic_intro_text)
+          self.say_private(self.mystic, self.mystic_intro_text)
         if self.angel != None:
-          self.say_private(self.angel, angel_intro_text)
+          self.say_private(self.angel, self.angel_intro_text)
         if self.ninja != None:
-          self.say_private(self.ninja, ninja_intro_text)
+          self.say_private(self.ninja, self.ninja_intro_text)
         if self.cupid != None:
-          self.say_private(self.cupid, cupid_intro_text)
+          self.say_private(self.cupid, self.cupid_intro_text)
         if self.village_elder != None:
-          self.say_private(self.village_elder, elder_intro_text)
+          self.say_private(self.village_elder, self.elder_intro_text)
         if self.watchman != None:
-          self.say_private(self.watchman, watchman_intro_text)
+          self.say_private(self.watchman, self.watchman_intro_text)
           
         for wolf in self.wolves:
-          self.say_private(wolf, wolf_intro_text)
+          self.say_private(wolf, self.wolf_intro_text)
         for villager in self.villagers:
-          self.say_private(villager, villager_intro_text)
+          self.say_private(villager, self.villager_intro_text)
 
         if self.debug:
           print "SEER: %s, WOLVES: %s" % (self.seer, self.wolves)
-        
-        for text in new_game_texts:
-          self.say_public(text)
           
         self.gamestate = self.GAMESTATE_RUNNING
         
         self.first_night = True
         # Start game by putting bot into "night" mode.
-        time.sleep(15)
+        time.sleep(5)
         self.night()
 
 
@@ -931,7 +897,7 @@ class WolfBot(SingleServerIRCBot):
         seer_done = 1
     
     # Is the mystic done guarding
-    if self.mystic is None or self.seer not in self.live_players:
+    if self.mystic is None or self.mystic not in self.live_players:
       mystic_done = 1
     else:
       if self.mystic_target is None:
@@ -996,31 +962,24 @@ class WolfBot(SingleServerIRCBot):
     # Declare nighttime.
     self.fix_modes(True)
     self.print_alive()
-    for text in night_game_texts:
+    for text in self.night_game_texts:
       self.say_public(text)
 
     # Give private instructions to wolves and other roles.
     if self.seer is not None and self.seer in self.live_players:
-      for text in night_seer_texts:
-        self.say_private(self.seer, text)
+        self.say_private(self.seer, self.night_seer_text)
     if self.mystic is not None and self.mystic in self.live_players:
-      for text in night_mystic_texts:
-        self.say_private(self.mystic, text)
+        self.say_private(self.mystic, self.night_mystic_text)
     if self.angel is not None and self.angel in self.live_players:
-      for text in night_angel_texts:
-        self.say_private(self.angel, text)
+        self.say_private(self.angel, self.night_angel_text)
     if self.ninja is not None and self.ninja in self.live_players and self.ninja_target is None:
-      for text in night_ninja_texts:
-        self.say_private(self.ninja, text)
+        self.say_private(self.ninja, self.night_ninja_text)
     if self.cupid is not None and self.cupid in self.live_players and self.first_night:
-      for text in night_cupid_texts:
-        self.say_private(self.cupid, text)
+        self.say_private(self.cupid, self.night_cupid_text)
     if self.watchman is not None and self.watchman in self.live_players:
-      for text in night_watchman_texts:
-        self.say_private(self.watchman, text)
-    for text in night_werewolf_texts:
-      for wolf in self.wolves:
-        self.say_private(wolf, text)
+        self.say_private(self.watchman, self.night_watchman_text)
+    for wolf in self.wolves:
+        self.say_private(wolf, self.night_werewolf_text)
     if len(self.wolves) == 3:
       self.say_private(self.wolves[0],\
                        ("The other werewolves are %s and %s.  Confer privately."\
@@ -1055,8 +1014,7 @@ class WolfBot(SingleServerIRCBot):
     self.day_extra_time = 0
     self.time = "day"
     
-    # Discover dead bodies if someone has been killed during the night, depending on the actions of 
-    self.say_public(IRC_YELLOW + "Day" + IRC_DEFAULT + " breaks!  Sunlight pierces the sky.")
+    # Discover dead bodies if someone has been killed during the night, depending on the actions of each player role
     
     if self.seer_target is not None:
       role = ""
@@ -1122,11 +1080,8 @@ class WolfBot(SingleServerIRCBot):
 
     # Give daytime instructions.
     self.print_alive()
-    for text in morning_game_texts:
+    for text in self.morning_game_texts:
       self.say_public(text)
-    if self.village_elder is not None and self.village_elder in self.live_players:
-      for text in day_elder_texts:
-        self.say_private(self.village_elder, text)
     
     self.fix_modes()
     self.day_timer = time.time()
