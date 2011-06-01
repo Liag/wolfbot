@@ -343,7 +343,7 @@ class WolfBot(SingleServerIRCBot):
     if nick == self.game_starter:
       self.game_starter = None
     if nick in self.live_players:
-      self.say_public("%s disappeared in some sort of strange wormhole." % nick)
+      self.say_public("%s fled the village, but the Reaper always gets his man." % nick)
       self.live_players.remove(nick)
       if self.gamestate == self.GAMESTATE_STARTING:
         # No more to do
@@ -351,39 +351,37 @@ class WolfBot(SingleServerIRCBot):
       self.dead_players.append(nick)
       if nick in self.wolves:
         self.wolves.remove(nick)
-        self.say_public("The only relic left by %s was a copious amount of lupine fur.  "
-	    "Now we know why %s always growled whenever a cat was nearby." % (nick,nick))
+        self.say_public("The only thing left of %s the " + IRC_BOLD + "werewolf" + IRC_DEFAULT + " was a few tufts of fur." % (nick,nick))
       if nick in self.villagers:
         self.villagers.remove(nick)
-        self.say_public("%s had a boring position in the game, that of a villager.  "
-            "Hopefully death will be more interesting." % nick)
+        self.say_public("%s was a villager." % nick)
       if self.seer is not None and nick == self.seer:
-        self.say_public("%s was a seer.  Apollo is mad that all his seers "
-            "get destroyed by timespace anomalies." % nick)
+        self.say_public("Not seeing a lot of %s the " + IRC_BOLD + "seer" + IRC_DEFAULT + ", didn't even say \"See ya!\"" % nick)
       if self.seer is not None and nick == self.seer_target:
         self.say_private(self.seer, "Due to %s's unexpected erasure from reality, "
-            "you may See once again this night." % nick)
+            "you may pick someone else to reveal." % nick)
         self.seer_target = None
       if self.mystic is not None and nick == self.mystic:
-        self.say_public("%s was a mystic. He won't be doing any protecting soon." % nick)
+        self.say_public("%s was a mystic, and appears to have lost the roll to save vs reality warping." % nick)
       if self.mystic is not None and nick == self.mystic_target:
         self.say_private(self.mystic, "Due to %s's unexpected erasure from reality, "
-                         "you may protect someone else this night." % nick)
+                         "you may pick a new protection target now." % nick)
         self.mystic_target = None
       if self.angel is not None and nick == self.angel:
-        self.say_public("%s was an angel. God's wrath will surely be mighty." % nick)
+        self.say_public("%s was an angel, and it appears not even divine intervention"
+                        "can save you from.. divine intervention." % nick)
       if self.ninja is not None and nick == self.ninja:
-        self.say_public("%s was a ninja. He hid in a disconnection or something, I guess." % nick)
+        self.say_public("%s was a ninja, cleverly hiding behind a disconnection." % nick)
         ninja_target = None
       if self.ninja is not None and nick == self.ninja_target and self.time == "night":
         self.say_private(self.ninja, "Due to %s's unexpected erasure from reality, "
-                         "you may assassinate someone else this night." % nick)
+                         "you may pick a new assassination target now." % nick)
       if self.cupid is not None and nick == self.cupid:
-        self.say_public("%s was a cupid. The subjects of his 'work' surely won't mourn him." % nick)
+        self.say_public("%s was a cupid, clearly not enough love for the town." % nick)
       if self.lovers and (nick == self.lovers[0] or nick == self.lovers[1]):
         self.check_lovers(nick)
       if self.village_elder is not None and nick == self.village_elder:
-        self.say_public("%s was the village elder. The villagers are sorry for his lots." % nick)
+        self.say_public("%s was the village elder! Some leader of the community!" % nick)
       if self.watchman is not None and nick == self.watchman:
         self.say_public("%s was a watchman. Perhaps he should have been more watchful!" % nick)
       if nick == self.wolf_target:
