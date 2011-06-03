@@ -942,7 +942,7 @@ class WolfBot(SingleServerIRCBot):
       if self.nonvoters:
         for voter in self.nonvoters:
           if voter not in self.villager_votes:
-            self.say_public(IRC_BOLD + voter + IRC_BOLD + " has disobeyed the rules and has not voted for two days in a row. They suffer a grim, mysterious death.")
+            self.say_public(IRC_BOLD + voter + IRC_BOLD + " failed to vote two nights in a row, and has been struck down by the forces of good.")
             self.kill_player(voter, False, False)
         time.sleep(3)
       
@@ -1032,7 +1032,7 @@ class WolfBot(SingleServerIRCBot):
         role = WOLF_COLOR + "a werewolf!" + IRC_DEFAULT
       else:
         role = "a villager."
-      self.say_private(self.seer, "Your dreams told you that " + IRC_BOLD + self.seer_target + IRC_BOLD + " is " + IRC_BOLD + role + IRC_BOLD)
+      self.say_private(self.seer, "You saw into the mind of " + IRC_BOLD + self.seer_target + IRC_BOLD + ", and discovered they are " + IRC_BOLD + role + IRC_BOLD)
       
     assassinated = False
     if self.ninja_target in self.live_players:
@@ -1042,14 +1042,14 @@ class WolfBot(SingleServerIRCBot):
       if not assassinated:
         self.say_public("The night seems to have transpired peacefully.")
       else:
-        self.say_public("The village awakes in horror...")
-        self.say_public("to find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_DEFAULT + ", killed silently in their sleep!")
+        self.say_public("The ninja strikes!")
+        self.say_public("The village awakes to find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_DEFAULT + "! Now with 100% less head!")
         
       if self.watchman is not None:
         if self.wolf_target is None:
-          self.say_private(self.watchman, "The werewolves didn't target anyone last night.")
+          self.say_private(self.watchman, "The night transpired with no unusual attacks.")
         elif self.wolf_target is not None or (self.wolf_target == self.ninja_target):
-          self.say_private(self.watchman, "The werewolves tried to kill %s last night, but failed." % self.wolf_target)
+          self.say_private(self.watchman, "The werewolves attacked %s last night, but failed!" % self.wolf_target)
       
       if assassinated:
         self.kill_player(self.ninja_target, False)
@@ -1155,11 +1155,11 @@ class WolfBot(SingleServerIRCBot):
           self.reply(e, "That player either doesn't exist, or is dead.")
         else:
           if self.seer_target is not None:
-            self.reply(e, "You've already had your vision for tonight.")
+            self.reply(e, "You've already exhausted your powers for tonight.")
           else:
             self.seer_target = who
             
-            self.reply(e, "You have decided to see if %s really are what they seem to be." % self.seer_target)
+            self.reply(e, "Come the morning, you will see %s's true identity." % self.seer_target)
             if self.check_night_done():
               self.day()
     
@@ -1180,13 +1180,13 @@ class WolfBot(SingleServerIRCBot):
           self.reply(e, "That player either doesn't exist, or is dead.")
         else:
           if self.mystic_target is not None:
-            self.reply(e, "You've already protected somebody tonight.")
+            self.reply(e, "You can only protect one person each night! Pick another target.")
           elif self.old_mystic_target == who:
-            self.reply(e, "You can't protect the same person two nights in a row.")
+            self.reply(e, "You must choose someone else residual magic prevents you from continuously protecting the same person!")
           else:
             self.mystic_target = who
             
-            self.reply(e, "The gods will surely see to it that nothing happens to %s tonight." % who)
+            self.reply(e, "You charge up your spirit mojo, %s should be safe tonight!" % who)
             if self.check_night_done():
               self.day()
 
@@ -1211,7 +1211,7 @@ class WolfBot(SingleServerIRCBot):
           self.reply(e, "That player either doesn't exist, or is dead.")
         else:
           if self.ninja_target is not None:
-            self.reply(e, "You've already assassinated somebody this game.")
+            self.reply(e, "Not a chance, you're all ninja'd out.")
           else:
             self.ninja_target = who
             
@@ -1234,7 +1234,7 @@ class WolfBot(SingleServerIRCBot):
         self.reply(e, "Huh?")
       else:
         if who1 not in self.live_players or who2 not in self.live_players:
-          self.reply(e, "One or both of the players you are trying to lover are either nonexistant or dead.")
+          self.reply(e, "One or both of the players you are trying to bind are either nonexistant or dead.")
         else:
           if self.lovers:
             self.reply(e, "You're out of arrows for this game.")
