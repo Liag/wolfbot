@@ -1233,11 +1233,12 @@ class WolfBot(SingleServerIRCBot):
           target = self.wolf_votes[self.wolf_votes.keys()[0]]
           for killee in self.wolf_votes.values():
             if target != killee:
+              target = self.wolf_votes[self.wolf_votes.keys()[random.randrange(len(self.wolf_votes))]]
               break
-            else:
-              self.wolf_target = target
-              if self.check_night_done():
-                self.day()
+              
+            self.wolf_target = target
+            if self.check_night_done():
+              self.day()
 
   def see(self, e, who):
     "Allow a seer to 'see' somebody."
@@ -1390,17 +1391,22 @@ class WolfBot(SingleServerIRCBot):
 
       # If all wolves have voted, look for agreement:
       if len(self.wolf_votes) == (len(self.wolves) + len(self.sleeping_wolves)):
+        agree = True
         for killee in self.wolf_votes.values():
           if who != killee:
+            who = self.wolf_votes[self.wolf_votes.keys()[random.randrange(len(self.wolf_votes))]]
+            self.reply(e, "The werewolves ")
+            agree = False
             break
-        else:
-          self.wolf_target = who
-          self.reply(e, "It is done. The werewolves agree.")
-          if self.check_night_done():
-            self.day()
-          return
-        self.reply(e, "Hm, I sense disagreement or ambivalence.")
-        self.reply(e, "You wolves should decide on one target.")
+        self.wolf_target = who
+        if agree:
+            self.reply(e, "It is done. The werewolves agree.")
+        if self.check_night_done():
+          self.day()
+        #self.reply(e, "Hm, I sense disagreement or ambivalence.")
+        #self.reply(e, "You wolves should decide on one target.")
+      else:
+        self.wolf_target = who
     else:
       # only one wolf alive, no need to agree with anyone.
       self.wolf_target = who
