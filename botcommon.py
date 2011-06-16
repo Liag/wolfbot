@@ -1,3 +1,4 @@
+# coding=utf-8
 """\
 Common bits and pieces used by the various bots.
 """

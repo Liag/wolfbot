@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 #
 # IRC Bot to moderate a game of "Werewolf".
 #
@@ -243,7 +244,111 @@ class WolfBot(SingleServerIRCBot):
     self.day_elder_text = \
     "As the village elder, you have a secret vote at your disposal. Please type \"/msg " + self.nickname + " secretvote <nickname>\" to use your anonymous vote."
     
+  def getLynchText(self, player):
+    "Define the lynch texts and return them"
+    
+    n = random.randrange(3)
+    text = ""
+    
+    if n == 0:
+        if player not in self.wolves:
+            text = "A decision is reached, and the mob surges over " + IRC_BOLD + player + IRC_DEFAULT + ", quickly dragging them to a sturdy tree. " + IRC_BOLD + player + IRC_DEFAULT + " is put into the noose, and the stool is quickly kicked out. A brutal snap resounds through the clearing; all too late, the villagers realize the moon had risen. The corpse of " + self.getRole(player) + " sway gently in the chilling breeze."
+        else:
+            text = "A decision is reached, and the mob surges over " + IRC_BOLD + player + IRC_DEFAULT + ", quickly dragging them to a sturdy tree. " + IRC_BOLD + player + IRC_DEFAULT + " is put into the noose, and the stool is quickly kicked out. A growl sounds from " + IRC_BOLD + player + IRC_DEFAULT + ", and a hunter quickly puts a silver bullet through the werewolf " + IRC_BOLD + player + IRC_DEFAULT + "’s head!"
+    
+    elif n == 1:
+        if player not in self.wolves:
+            text = "The villagers act quickly and bind the wrists of " + IRC_BOLD + player + IRC_DEFAULT + ", rapidly dragging them over to the hangin’ tree. Amidst bitter protests, they throw a noose on " + self.getRole(player) + ", and kick the hastily found log out from beneath his feet. With an utterly final crack, the village realizes they grabbed the wrong man."
+        else:
+            text = "The villagers act quickly and bind the wrists of " + IRC_BOLD + player + IRC_DEFAULT + ", rapidly dragging them over to the hangin’ tree. Amidst bitter protests, they throw a noose on " + IRC_BOLD + player + IRC_DEFAULT + ". Before they can act further, " + IRC_BOLD + player + IRC_DEFAULT + " growls and begins to struggle against the rope. A loud report from the rifle reverberates about the clearing: The wolf has been put down permanently with a silver bullet."
+
+    else:
+        if player not in self.wolves:
+            text = "With utter finality the village cries out and seizes " + IRC_BOLD + player + IRC_DEFAULT + ". A noose is hastily assembled, and despite shrill protests from " + IRC_BOLD + player + IRC_DEFAULT + " the man is strung up. The village tenses up as a sole man approaches and kicks out the support; " + self.getRole(player) + " hangs listlessly, and in their excitement the village did not notice the already-high moon..."
+        else:
+            text = "With utter finality the village cries out and seizes " + IRC_BOLD + player + IRC_DEFAULT + ". A noose is hastily assembled, and despite shrill protests from " + IRC_BOLD + player + IRC_DEFAULT + " the man is strung up. The village tenses up as a sole man approaches and kicks out the support; A loud yelp sounds from the ‘man’ and a swordsman deftly silences the wolf with his freshly forged silver sword."
+    
+    return text
+    
+  def getKillTexts(self, player):
+    "Define the wolf kill texts and return them"
+    
+    n = random.randrange(3)
+    texts = []
+    rand_texts = []
+    if n == 0:
+        texts.append("A loud scream sounds from the direction of " + IRC_BOLD + player + IRC_DEFAULT + "’s cottage, and the village quickly hurries over there.")
+    elif n == 1:
+        texts.append(IRC_BOLD + player + IRC_DEFAULT + "’s conspicuous absence causes the villagers to work their way over to his cottage.")
+    else:
+        texts.append("Upon finding " + IRC_BOLD + player + IRC_DEFAULT + " missing from the gathering of villagers come morning, they rush over to " + IRC_BOLD + player + IRC_DEFAULT + "’s cottage.")
+        
+    if player == self.seer:
+        rand_texts = \
+        ["Upon arriving, they find blood splattered everywhere, and " + IRC_BOLD + SEER_COLOR + player + " the Seer " + IRC_DEFAULT + "is discovered slumped over his crystal ball! Unfortunately, he didn’t see the werewolf until it was too late.",
+         "As the villagers arrive, the grisly sight before them turns several villagers away. Half of " + IRC_BOLD + SEER_COLOR + player + " the Seer " + IRC_DEFAULT + "is spread around the yard, and inside the cottage is no better, the werewolf saw to that."]
+    
+    elif player == self.watchman:
+        rand_texts = \
+        ["Upon arrival at the scene of the crime, the remains of " + IRC_BOLD + WATCHMAN_COLOR + player + " the Watchman " + IRC_DEFAULT + "are found partially eaten on his front porch!",
+         "As the villagers arrive, it is clear they rushed in vain. " + IRC_BOLD + WATCHMAN_COLOR + player + IRC_DEFAULT + " the Watchman was too busy watching the village to see his own death coming."]
+    
+    elif player == self.mystic:
+        rand_texts = \
+        ["The first man to make it to the house finds the grisly remains of " + IRC_BOLD + MYSTIC_COLOR + player + " the Mystic" + IRC_DEFAULT + "! Perhaps " + IRC_BOLD + player + IRC_DEFAULT + " should have expended some holy water to protect himself from the werewolf!",
+         "Upon reaching the house of " + IRC_BOLD + MYSTIC_COLOR + player + " the Mystic" + IRC_DEFAULT + ", the villagers find blood all over the clearing. Clearly " + IRC_BOLD + player + IRC_DEFAULT + " failed his saving throw against becoming dinner."]
+    
+    elif player == self.ninja:
+        rand_texts = \
+        ["As the villagers assemble in front of " + IRC_BOLD + NINJA_COLOR + player + " the Ninja’s " + IRC_DEFALULT + "house, it is abundantly clear that all of the stealth in the world won’t save you from a hungry werewolf knocking at your door.",
+         "Despite their quick response, the villagers find " + IRC_BOLD + NINJA_COLOR + player + " the Ninja already quite dead. Perhaps if he wasn’t so busy with night one blind kills he’d have time to defend himself.",
+         "After rushing over there, a few villagers rush away; The grisly sight of " + IRC_BOLD + NINJA_COLOR + player + " the Ninja " + IRC_DEFAULT + "is difficult to stomach, although certainly leaves no doubt as to the vitality of " + IRC_BOLD + player + IRC_DEFAULT + "."]
+    
+    elif player == self.cupid:
+        rand_texts = \
+        ["Upon arrival at the house of " + IRC_BOLD + CUPID_COLOR + player + " the Cupid" + IRC_DEFAULT + ", all that remains is a single, broken arrow. It appears that he would have been better off if armed with a real weapon.",
+         "Once the villagers have assembled before the house of " + IRC_BOLD + CUPID_COLOR + player + " the Cupid" + IRC_DEFAULT + ", they quickly storm inside, only to find the grisly remains of " + IRC_BOLD + player + IRC_DEFAULT + " scattered about the room."]
+    
+    elif player == self.village_elder:
+        rand_texts = \
+        ["As the village arrives at the house of the venerable " + IRC_BOLD + CUPID_COLOR + "village elder " + player + IRC_DEFAULT + ", they find his grisly corpse scattered rudely about the clearing. Apparently, wisdom doesn’t grant protection!",
+         "Upon arrival at the abode of " + IRC_BOLD + SEER_COLOR + player + " the Village Elder" + IRC_DEFAULT + ", they cautiously enter his house. The sight inside is not one meant for mortal eyes, as %%victim%% lays inanimate on the floor, entrails spilling out."]
+    
+    elif player in self.wolves:
+        rand_texts = \
+        ["",
+         ""]
+    else:
+        rand_texts = ["As they arrive, they are greeted by the gruesome sight of " + IRC_BOLD + player + " the Villager" + IRC_DEFAULT + ", brutally struck down at the entrance to his cottage.",
+                      "Arriving in the clearing, a harsh beam of light illuminates what remains of " + IRC_BOLD + player + " the Villager" + IRC_DEFAULT + ", fatally impaled upon a rickety wooden fence."]
+    
+    texts.append(rand_texts[random.randrange(len(rand_texts))])
+    
+    return texts
   
+  def getRole(self, player):
+      "Returns the role of the player"
+      
+      role = ""
+      if player == self.mystic:
+        role = MYSTIC_COLOR + player + " the Mystic" + IRC_DEFAULT
+      elif player == self.angel:
+        role = ANGEL_COLOR + player + " the Angel" + IRC_DEFAULT
+      elif player == self.ninja:
+        role = NINJA_COLOR + player + " the Ninja" + IRC_DEFAULT
+      elif player == self.cupid:
+        role = CUPID_COLOR + player + " the Cupid" + IRC_DEFAULT
+      elif player == self.village_elder:
+        role = ELDER_COLOR + player + " the Village Elder" + IRC_DEFAULT
+      elif player == self.watchman:
+        role = WATCHMAN_COLOR + player + " the Watchman" + IRC_DEFAULT
+      #elif player in self.wolves:
+        #role = WOLF_COLOR + "Werewolf!" + IRC_DEFAULT
+      else:
+        role = player + " the Villager" + IRC_DEFAULT
+      
+      return role
+    
   def process_timers(self):
     #Process all existing timers and check if their functions need to executed
     
@@ -287,8 +392,7 @@ class WolfBot(SingleServerIRCBot):
             else:
               victim = victims[random.randrange(len(victims))]
         
-            self.say_public("The villagers have voted to lynch " + IRC_BOLD + victim + IRC_BOLD + "!! "
-                             "Mob violence ensues.  This player is now " + IRC_RED + IRC_BOLD + "dead" + IRC_DEFAULT + ".")
+            self.say_public(self.getLynchText(victim))
             if not self.kill_player(victim):
             # Day is done;  flip bot back into night-mode.
               self.night()
@@ -598,10 +702,12 @@ class WolfBot(SingleServerIRCBot):
           % (len(self.live_players), self.live_players)))
 
       else:
+        self.gamestate = self.GAMESTATE_RUNNING
         users = self.live_players[:]
         
         self.defineTexts()
         self.say_public(self.new_game_text)
+        self.fix_modes(True)
         # Set number of village roles based on amount of players
         if len(users) < 6: 
           roles = 1
@@ -701,8 +807,6 @@ class WolfBot(SingleServerIRCBot):
 
         if self.debug:
           print "SEER: %s, WOLVES: %s" % (self.seer, self.wolves)
-          
-        self.gamestate = self.GAMESTATE_RUNNING
         
         self.first_night = True
         # Start game by putting bot into "night" mode.
@@ -826,7 +930,7 @@ class WolfBot(SingleServerIRCBot):
 
     # If the number of non-wolves is the same as the number of wolves,
     # then the wolves win.
-    if (len(self.live_players) - len(self.wolves)) == len(self.wolves):
+    if (len(self.live_players) - len(self.wolves)) <= len(self.wolves):
       lover_pos = self.check_wolf_lovers()
       if lover_pos:
         if len(self.wolves) == 1:
@@ -942,7 +1046,7 @@ class WolfBot(SingleServerIRCBot):
       if self.nonvoters:
         for voter in self.nonvoters:
           if voter not in self.villager_votes:
-            self.say_public(IRC_BOLD + voter + IRC_BOLD + " failed to vote two nights in a row, and has been struck down by the forces of good.")
+            self.say_public(self.getRole(voter) + " failed to vote two nights in a row, and has been struck down by the forces of good.")
             self.kill_player(voter, False, False)
         time.sleep(3)
       
@@ -1032,7 +1136,7 @@ class WolfBot(SingleServerIRCBot):
         role = WOLF_COLOR + "a werewolf!" + IRC_DEFAULT
       else:
         role = "a villager."
-      self.say_private(self.seer, "You saw into the mind of " + IRC_BOLD + self.seer_target + IRC_BOLD + ", and discovered they are " + IRC_BOLD + role + IRC_BOLD)
+      self.say_private(self.seer, "You saw into the mind of " + IRC_BOLD + self.seer_target + IRC_DEFAULT + ", and discovered they are " + IRC_BOLD + role + IRC_DEFAULT)
       
     assassinated = False
     if self.ninja_target in self.live_players:
@@ -1043,7 +1147,7 @@ class WolfBot(SingleServerIRCBot):
         self.say_public("The night seems to have transpired peacefully.")
       else:
         self.say_public("The ninja strikes!")
-        self.say_public("The village awakes to find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_DEFAULT + "! Now with 100% less head!")
+        self.say_public("The village awakes to find the body of " + IRC_BOLD + self.getRole(self.ninja_target) + "! Now with 100% less head!")
         
       if self.watchman is not None:
         if self.wolf_target is None:
@@ -1054,11 +1158,12 @@ class WolfBot(SingleServerIRCBot):
       if assassinated:
         self.kill_player(self.ninja_target, False)
     else:
-      self.say_public("The village awakes in horror...")
-      self.say_public("to find the mutilated body of " + IRC_BOLD + IRC_RED + self.wolf_target + IRC_DEFAULT + "!!")
+      for text in self.getKillTexts(self.wolf_target):
+        self.say_public(text)
       self.kill_player(self.wolf_target, False)
       if assassinated:
-        self.say_public("They also find the body of " + IRC_BOLD + IRC_RED + self.ninja_target + IRC_DEFAULT + ", who mysteriously seems to have died without any noticeable wounds.")
+        self.say_public("The ninja strikes!")
+        self.say_public("The village awakes to find the body of " + IRC_BOLD + self.getRole(self.ninja_target) + "! Now with 100% less head!")
         
       if assassinated:
         self.kill_player(self.ninja_target, False)
@@ -1313,7 +1418,7 @@ class WolfBot(SingleServerIRCBot):
     if self.nonvoters and player in self.nonvoters and del_voter:
       self.nonvoters.remove(player)
 
-    if player in self.wolves:
+    """if player in self.wolves:
       id = "a " + IRC_BOLD + WOLF_COLOR + "wolf" + IRC_DEFAULT + "!"
       self.wolves.remove(player)
     elif player == self.seer:
@@ -1333,7 +1438,7 @@ class WolfBot(SingleServerIRCBot):
     else:
       id = "a normal villager."
     
-    self.say_public("*** Examining the body, you notice that " + IRC_BOLD + player + IRC_DEFAULT + " was " + id)
+    self.say_public("*** Examining the body, you notice that " + IRC_BOLD + player + IRC_DEFAULT + " was " + id)"""
     if check_over:
       if self.check_game_over():
         return 1
@@ -1349,10 +1454,10 @@ class WolfBot(SingleServerIRCBot):
   def check_lovers(self, player, check = True):
     if self.lovers and (self.lovers[0] in self.live_players or self.lovers[1] in self.live_players):
       if player == self.lovers[0]:
-        self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % (self.lovers[1], self.lovers[0]))
+        self.say_public(self.getRole(IRC_BOLD + self.getRole(self.lovers[1]) + IRC_DEFAULT + " cannot live without their lover " +IRC_BOLD + self.lovers[0] + IRC_DEFAULT + "! In grief, they commit suicide."))
         return self.kill_player(self.lovers[1], check)
       elif player == self.lovers[1]:
-        self.say_public("%s cannot live without their lover %s! In grief, they commit suicide." % (self.lovers[0], self.lovers[1]))
+        self.say_public(self.getRole(IRC_BOLD + self.getRole(self.lovers[0]) + IRC_DEFAULT + " cannot live without their lover " +IRC_BOLD + self.lovers[1] + IRC_DEFAULT + "! In grief, they commit suicide."))
         return self.kill_player(self.lovers[0], check)
     else: return 0
 
@@ -1461,8 +1566,7 @@ class WolfBot(SingleServerIRCBot):
           else:
             victim = victims[random.randrange(len(victims))]
             
-            self.say_public("The villagers have voted to lynch " + IRC_BOLD + victim + IRC_BOLD + "!! "
-                             "Mob violence ensues.  This player is now " + IRC_RED + IRC_BOLD + "dead" + IRC_DEFAULT + ".")
+            self.say_public(self.getLynchText(victim))
           if not self.kill_player(victim):
           # Day is done;  flip bot back into night-mode.
             self.night()
