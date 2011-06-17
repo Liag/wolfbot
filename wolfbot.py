@@ -342,8 +342,8 @@ class WolfBot(SingleServerIRCBot):
         role = ELDER_COLOR + player + " the Village Elder" + IRC_DEFAULT
       elif player == self.watchman:
         role = WATCHMAN_COLOR + player + " the Watchman" + IRC_DEFAULT
-      #elif player in self.wolves:
-        #role = WOLF_COLOR + "Werewolf!" + IRC_DEFAULT
+      elif player in self.wolves:
+        role = WOLF_COLOR + "the Werewolf" + IRC_DEFAULT
       else:
         role = player + " the Villager" + IRC_DEFAULT
       
@@ -903,12 +903,12 @@ class WolfBot(SingleServerIRCBot):
       self.say_public("*** " + IRC_BOLD + LOVERS_COLOR + "Lovers: " + IRC_BOLD + lover_msg[0] + IRC_DEFAULT + " and " + IRC_BOLD + LOVERS_COLOR + lover_msg[0])
     if self.villagers:
       if self.villagers[0] in self.live_players:
-        msg = "*** " + IRC_BOLD + "Villagers: " + IRC_UNDERLINE + self.villagers[0] + IRC_DEFAULT + IRC_BOLD
+        msg = "*** " + IRC_BOLD + "Villagers: " + IRC_UNDERLINE + self.villagers[0] + IRC_DEFAULT
       else:
-        msg = "*** " + IRC_BOLD + "Villagers: " + self.villagers[0]
+        msg = "*** " + IRC_BOLD + "Villagers: " + self.villagers[0] + IRC_DEFAULT
       for i in range(1, len(self.villagers)):
         if self.villagers[i] in self.live_players:
-          msg += ", " + IRC_UNDERLINE + self.villagers[i] + IRC_DEFAULT + IRC_BOLD
+          msg += ", " + IRC_UNDERLINE + self.villagers[i] + IRC_DEFAULT
         else:
           msg += ", " + self.villagers[i]
       self.say_public(msg)
@@ -940,7 +940,7 @@ class WolfBot(SingleServerIRCBot):
           self.say_public("There are now an equal number of villagers and werewolves.")
           msg = "The werewolves have no need to hide anymore; "
           msg = msg + "They attack the remaining villagers. "
-          msg = msg + "Amongst the villagers who were killed, " + self.lovers[lover_pos[0]] + "finds their dead lover " + self.lovers[lover_pos[1]] + "."
+          msg = msg + "Amongst the villagers who were killed, " + self.lovers[lover_pos[0]] + " finds their dead lover " + self.lovers[lover_pos[1]] + "."
           msg = msg + "In shock and grief, " + self.lovers[lover_pos[0]] + " commits suicide."
           msg = msg + "The " + IRC_BOLD + IRC_RED + "werewolves" + IRC_DEFAULT + " have " + IRC_BOLD + IRC_RED + "won" + IRC_DEFAULT + "."
           self.say_public(msg)
